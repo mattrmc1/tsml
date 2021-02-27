@@ -1,3 +1,5 @@
+import { Validate } from "./validations";
+
 const chalk = require('chalk');
 const { table } = require('table');
 
@@ -31,6 +33,9 @@ export class Matrix {
    * Columns = 1  |  Rows = Array.Length 
    */
   static BuildFromArray = (arr: number[]): Matrix => {
+
+    Validate.BuildFromArray(arr);
+
     const m = new Matrix(arr.length, 1);
     for (let i = 0; i < arr.length; i++) {
       m.data[i][0] = arr[i];
@@ -47,6 +52,9 @@ export class Matrix {
    * Steps left -> right & top -> bottom
    */
   static FlattenToArray = (m: Matrix): number[] => {
+
+    Validate.FlattenToArray(m);
+
     const arr: number[] = [];
     m.forEach(x => arr.push(x))
     return arr;
@@ -60,11 +68,7 @@ export class Matrix {
    */
   static DotProduct = (left: Matrix, right: Matrix): Matrix => {
 
-    if (left.cols !== right.rows) {
-      console.log(chalk.red(table(left.data)))
-      console.log(chalk.red(table(right.data)))
-      throw new Error("[Dot Product Error] Mismatched rows and colums");
-    }
+    Validate.DotProduct(left, right);
 
     // This feel wildly inefficient...
     const product = new Matrix(left.rows, right.cols)
@@ -86,10 +90,8 @@ export class Matrix {
    * @param n Matrix to be added
    */
   static Add = (m: Matrix, n: Matrix): Matrix => {
-    if (m.rows !== n.rows || m.cols !== n.cols) {
-      const msg: string = `[Addition Error] Matrices must have the same dimensions | M: [${m.rows}, ${m.cols}] | | N: [${n.rows}, ${n.cols}]`;
-      throw new Error(msg);
-    }
+    
+    Validate.Add(m,n);
 
     let result = new Matrix(m.rows, m.cols);
 
@@ -99,14 +101,12 @@ export class Matrix {
       }
     }
 
-    return m;
+    return result;
   }
 
   static Subtract = (m: Matrix, n: Matrix): Matrix => {
-    if (m.rows !== n.rows || m.cols !== n.cols) {
-      const msg: string = `[Subtraction Error] Matrices must have the same dimensions | M: [${m.rows}, ${m.cols}] | | N: [${n.rows}, ${n.cols}]`;
-      throw new Error(msg);
-    }
+    
+    Validate.Subtract(m,n);
 
     let result = new Matrix(m.rows, m.cols);
 
@@ -155,17 +155,20 @@ export class Matrix {
 
   public add = (input: Matrix | number): Matrix => {
 
-    if (input instanceof Matrix) {
-      for (let i = 0; i < this.rows; i++) {
-        for(let j = 0; j < this.cols; j++) {
-          this.data[i][j] + input.data[i][j];
-        }
-      }
-      return this;
+    if (typeof input == "number") {
+      return this.map(x => x + input);
     }
 
-    if (typeof input == "number")
-      return this.map(x => x + input as number);
+    Validate.Add(this, input)
+
+    for (let i = 0; i < this.rows; i++) {
+      for(let j = 0; j < this.cols; j++) {
+        this.data[i][j] + input.data[i][j];
+      }
+    }
+
+    return this;
+    
   }
 
   // TODO Simplifying for prettier logs | Revert for accuracy
