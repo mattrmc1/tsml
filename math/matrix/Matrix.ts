@@ -34,7 +34,7 @@ export class Matrix {
    */
   static BuildFromArray = (arr: number[]): Matrix => {
 
-    Validate.BuildFromArray(arr);
+    // Validate.BuildFromArray(arr);
 
     const m = new Matrix(arr.length, 1);
     for (let i = 0; i < arr.length; i++) {

@@ -17,19 +17,19 @@ interface IMatrixInstanceAdditionTestData {
 
 export const staticAdditionPass: IStaticAdditionTestData[] = [
   {
-    description: 'test pass 1',
+    description: 'Addition: Should pass with two 2x2 matrices',
     m: new Matrix(2, 2).map(x => 1),
     n: new Matrix(2, 2).map(x => 100),
     expected: new Matrix(2, 2).map(x => 101).data
   },
   {
-    description: 'test pass 2',
+    description: 'Addition: Should pass with two 1x1 matrices',
     m: new Matrix(1, 1).map(x => -1),
     n: new Matrix(1, 1).map(x => -1),
     expected: new Matrix(1, 1).map(x => -2).data
   },
   {
-    description: 'test pass 3',
+    description: 'Addition: Should pass with two 10x8 matrices',
     m: new Matrix(10, 8).map(x => 5),
     n: new Matrix(10, 8).map(x => 95),
     expected: new Matrix(10, 8).map(x => 100).data
@@ -38,21 +38,21 @@ export const staticAdditionPass: IStaticAdditionTestData[] = [
 
 export const staticAdditionFail: IStaticAdditionTestData[] = [
   {
-    description: 'test fail 1',
-    m: new Matrix(1, 2).map(x => 1),
-    n: new Matrix(2, 2).map(x => 100),
+    description: 'Addition: Should FAIL with 1x2 + 2x2',
+    m: new Matrix(1, 2),
+    n: new Matrix(2, 2),
     errorMessage: "[Addition Error] Matrices must have the same dimensions"
   },
   {
-    description: 'test fail 2',
-    m: new Matrix(1, 2).map(x => -1),
-    n: new Matrix(1, 1).map(x => -1),
+    description: 'Addition: Should FAIL with 1x2 + 1x1',
+    m: new Matrix(1, 2),
+    n: new Matrix(1, 1),
     errorMessage: "[Addition Error] Matrices must have the same dimensions"
   },
   {
-    description: 'test fail 3',
-    m: new Matrix(10, 8).map(x => 5),
-    n: new Matrix(8, 10).map(x => 95),
+    description: 'Addition: Should FAIL with 10x8 + 8x10',
+    m: new Matrix(5, 4),
+    n: new Matrix(4, 5),
     errorMessage: "[Addition Error] Matrices must have the same dimensions"
   }
 ]

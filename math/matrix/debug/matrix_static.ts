@@ -1,4 +1,4 @@
-import { Matrix } from "./Matrix";
+import { Matrix } from "../Matrix";
 
 export const DEBUG_STATIC_BuildFromArray = (): void => {
   console.log(`
