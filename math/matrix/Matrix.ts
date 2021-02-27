@@ -91,13 +91,32 @@ export class Matrix {
       throw new Error(msg);
     }
 
-    for (let i = 0; i < m.rows; i++) {
-      for(let j = 0; j < m.cols; j++) {
-        m.data[i][j] += n.data[i][j];
+    let result = new Matrix(m.rows, m.cols);
+
+    for (let i = 0; i < result.rows; i++) {
+      for(let j = 0; j < result.cols; j++) {
+        result.data[i][j] = m.data[i][j] + n.data[i][j];
       }
     }
 
     return m;
+  }
+
+  static Subtract = (m: Matrix, n: Matrix): Matrix => {
+    if (m.rows !== n.rows || m.cols !== n.cols) {
+      const msg: string = `[Subtraction Error] Matrices must have the same dimensions | M: [${m.rows}, ${m.cols}] | | N: [${n.rows}, ${n.cols}]`;
+      throw new Error(msg);
+    }
+
+    let result = new Matrix(m.rows, m.cols);
+
+    for (let i = 0; i < m.rows; i++) {
+      for(let j = 0; j < m.cols; j++) {
+        result.data[i][j] = m.data[i][j] - n.data[i][j];
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -115,12 +134,35 @@ export class Matrix {
     return result;
   }
 
+  static Map = (m: Matrix, func: (x: number) => number): Matrix => {
+    
+    // Validate
+
+    let result = new Matrix(m.rows, m.cols);
+
+    for (let i = 0; i < result.rows; i++) {
+      for(let j = 0; j < result.cols; j++) {
+        result.data[i][j] = func(m.data[i][j]);
+      }
+    }
+
+    return result;
+  }
+
   // #endregion
+
+  // #region Public Methods
 
   public add = (input: Matrix | number): Matrix => {
 
-    if (input instanceof Matrix)
-      return Matrix.Add(this, input);
+    if (input instanceof Matrix) {
+      for (let i = 0; i < this.rows; i++) {
+        for(let j = 0; j < this.cols; j++) {
+          this.data[i][j] + input.data[i][j];
+        }
+      }
+      return this;
+    }
 
     if (typeof input == "number")
       return this.map(x => x + input as number);
@@ -169,4 +211,6 @@ export class Matrix {
     console.log(chalk[color](table(this.data)));
     return this;
   }
+
+  //#endregion
 }

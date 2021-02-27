@@ -1,10 +1,5 @@
-// Input layer size + values
-// Output layer size
-// # of hidden layers
-// # of neurons per hidden layer
-
-import { Matrix } from "../math/Matrix";
-import { sigmoid } from "../math/squishify";
+import { Matrix } from "../math/matrix/Matrix";
+import { sigmoid } from "../math/formulas";
 
 const chalk = require('chalk');
 
@@ -41,10 +36,34 @@ export class NeuralNetwork {
     ];
   }
 
-  public DEBUG = (): void => {
-    this.activations.forEach(a => a.print("red"));
-    this.weights.forEach(m => m.print("cyan"));
-    this.biases.forEach(b => b.print("magenta"));
+  public DEBUG = (debugData?: 'input' | 'output' | 'activations' | 'weights' | 'biases'): void => {
+    switch (debugData) {
+      
+      case 'input':
+        this.activations[0].print("white")
+        break;
+
+      case 'output':
+        this.activations[this.activations.length - 1].print("red");
+        break;
+
+      case 'activations':
+        this.activations.forEach(a => a.print("red"));
+        break;
+
+      case 'weights':
+        this.weights.forEach(m => m.print("cyan"));
+        break;
+
+      case 'biases':
+        this.biases.forEach(b => b.print("magenta"));
+        break;
+
+      default:
+        this.activations.forEach(a => a.print("red"));
+        this.weights.forEach(m => m.print("cyan"));
+        this.biases.forEach(b => b.print("magenta"));
+    }
   }
 
   /**
@@ -92,5 +111,19 @@ export class NeuralNetwork {
     }
 
     return Matrix.FlattenToArray(output);
+  }
+
+  public train(input: number[], expectedOutput: number[], learningRate: number = 0.1) {
+    const outputs: number[] = this.feedForward(input);
+
+    const output_matrix: Matrix = Matrix.BuildFromArray(outputs);
+    const expected_matrix: Matrix = Matrix.BuildFromArray(expectedOutput);
+
+    output_matrix.print();
+    expected_matrix.print("magenta")
+
+    const outputError = Matrix.Subtract(expected_matrix, output_matrix);
+    outputError.print("cyan");
+    expected_matrix.print("magenta")
   }
 }
