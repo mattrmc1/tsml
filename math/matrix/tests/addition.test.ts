@@ -1,22 +1,26 @@
 import { Matrix } from "../Matrix"
 import { MatrixAlt } from "../MatrixAlt";
-import { staticAdditionFail, staticAdditionPass } from "./addition.data"
+import {
+  static_Add_Pass,
+  static_Add_Fail,
+  instance_Add_Pass,
+  instance_Add_Fail
+} from './addition.data';
 
-
-describe("Static Matrix.Add", () => {
+describe("Matrix Static Addition", () => {
 
   // Passing Tests
-  staticAdditionPass.forEach( data => {
+  static_Add_Pass.forEach( data => {
     test(data.description, () => {
-      const matrix = Matrix.Add(data.m, data.n);
+      const matrix = Matrix.Add(data.left, data.right);
       expect(matrix.data).toStrictEqual(data.expected);
     })
   })
 
   // Failing Tests
-  staticAdditionFail.forEach( data => {
+  static_Add_Fail.forEach( data => {
     test(data.description, () => {
-      expect(() => Matrix.Add(data.m, data.n)).toThrow(data.errorMessage);
+      expect(() => Matrix.Add(data.left, data.right)).toThrow(data.errorMessage);
     })
   })
 
@@ -53,5 +57,19 @@ describe("Static Matrix.Add", () => {
 
 describe("Matrix Instance Addition", () => {
 
+  // Passing Tests
+  instance_Add_Pass.forEach( data => {
+    test(data.description, () => {
+      data.self.add(data.param);
+      expect(data.self.data).toStrictEqual(data.expected);
+    })
+  });
+
+  // Failing Tests
+  instance_Add_Fail.forEach( data => {
+    test(data.description, () => {
+      expect(() => data.self.add(data.param)).toThrow(data.errorMessage);
+    })
+  })
 })
 

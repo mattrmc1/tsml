@@ -1,5 +1,5 @@
 import { Matrix } from "../math/matrix/Matrix";
-import { sigmoid } from "../math/formulas";
+import { calculateBiasDeltas, calculateWeightDeltas, cost, sigmoid } from "../math/formulas";
 
 const chalk = require('chalk');
 
@@ -8,6 +8,11 @@ export type NetworkConfig = {
   outputSize?: number; // Can be set on train call
   layerSizes?: number[]; // A little confusing... length of array is how many layers, each number is size of layer
   iterations?: number;
+}
+
+export type NetworkTraining = {
+  input: number[];
+  output: number[];
 }
 
 const defaultConfig: NetworkConfig = {
@@ -67,7 +72,13 @@ export class NeuralNetwork {
   }
 
   /**
-   * Expect Sizes to have been set
+   * Expects Sizes to have been set
+   * 
+   * • Populates activation matrices based on input, output, and layer sizes
+   * 
+   * • Populates weights matrices and randomizes values
+   * 
+   * • Populates biases matrices and randomizes values
    */
   public initialize = (): void => {
     
@@ -86,44 +97,93 @@ export class NeuralNetwork {
     }
   }
 
-  public feedForward = (inputArr: number[]): number[] => {
+  // #region Feed Forward
 
-    // TODO Verify Input
-
-    if (inputArr.length !== this.sizes[0]) {
+  private verifyFeedForwardInput = (input: number[]): void => {
+    if (input.length !== this.sizes[0]) {
       console.log(chalk.red("Input array must match inputSize from config"));
       throw new Error("whoops");
     }
+  }
 
-    const input: Matrix = Matrix.BuildFromArray(inputArr);
+  public run = (inputArray: number[]): number[] => {
+
+    this.verifyFeedForwardInput(inputArray);
+
+    const input: Matrix = Matrix.BuildFromArray(inputArray);
     this.activations[0] = input;
 
-    let output: Matrix;
-
-    for(let i = 0; i < this.weights.length; i++) {
-      let layer = Matrix
+    for (let i = 0; i < this.weights.length; i++) {
+      
+      // z(L) = w(L) * a(L-1) + b(L);
+      let activationLayer = Matrix
         .DotProduct(this.weights[i], this.activations[i])
         .add(this.biases[i])
-        .map(sigmoid);
-      
-      this.activations[i + 1] = layer;
-      output = layer
+
+      // a(L) = sigmoid(z(L))
+      this.activations[i + 1] = activationLayer.map(sigmoid);
     }
 
-    return Matrix.FlattenToArray(output);
+    // Output will be last activation layer
+    return Matrix.FlattenToArray(this.activations[this.activations.length - 1]);
   }
 
-  public train(input: number[], expectedOutput: number[], learningRate: number = 0.1) {
-    const outputs: number[] = this.feedForward(input);
+  // #endregion
 
-    const output_matrix: Matrix = Matrix.BuildFromArray(outputs);
-    const expected_matrix: Matrix = Matrix.BuildFromArray(expectedOutput);
+  // #region Back Propagation
 
-    output_matrix.print();
-    expected_matrix.print("magenta")
-
-    const outputError = Matrix.Subtract(expected_matrix, output_matrix);
-    outputError.print("cyan");
-    expected_matrix.print("magenta")
+  private verifyTrainingInput = (input: NetworkTraining[]): void => {
+    // TODO
   }
+
+  public train = (tests: NetworkTraining[], learningRate: number = 0.1): void => {
+    
+    return;
+    
+    // Init
+    this.verifyTrainingInput(tests);
+
+    tests.forEach(({ input, output }) => {
+
+      // Run test
+      this.run(input);
+      const actual = this.activations[this.activations.length - 1];
+
+      // Convert expected output to Matrix (y)
+      const expected = Matrix.BuildFromArray(output);
+
+      // Calculate error (actual <-> expected)
+      const err = cost(actual, expected);
+      console.log(err.data);
+
+      // Calculate all deltaWeights
+      const deltaWeights: Matrix[] = calculateWeightDeltas(
+        this.activations,
+        this.weights,
+        this.biases,
+        expected
+      );
+      
+      // Calculate all deltaBiases
+      // const deltaBiases: Matrix[] = calculateBiasDeltas(
+      //   this.activations,
+      //   this.weights,
+      //   this.biases,
+      //   expected
+      // );
+
+      // Update weights by learning rate
+      // this.weights = this.weights.map((m, i) => Matrix.Subtract(m, deltaWeights[i]));
+
+      // Update biases by learning rate
+      // this.biases = this.biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i]));
+
+      // TODO
+      // Iterate until under min err threshold
+
+    })
+
+  }
+
+  // #endregion
 }
