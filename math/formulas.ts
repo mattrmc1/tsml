@@ -1,4 +1,5 @@
 import { Matrix } from "./matrix/Matrix";
+import { MatrixStatic } from "./matrix/MatrixStatic";
 
 export const sigmoid = (x: number) => 1 / ( 1 + Math.exp(-x) );
 export const deltaSigmoid = (x: number) => sigmoid(x) * ( 1 - sigmoid(x) );
@@ -11,6 +12,8 @@ export const deltaCost = (actual: Matrix, expected: Matrix) => Matrix.Subtract(a
 
 /**
  * Change to cost function in respect to given activation layer
+ * 
+ * ∑ w(L+1) * o'(z(L+1)) * dC/dA(L + 1) OR 2(a(L) - y)
  */
 export const dCdA = (
   activations: Matrix[],
@@ -22,33 +25,33 @@ export const dCdA = (
 
   // a(L) = this activation layer
   const aL: Matrix = activations[l];
-  console.log('aL', aL.data);
 
-  // If last activation layer, return 2(a(L) - y)
-  if (l === activations.length - 1)
+  // If right-most layer, return 2(a(L) - y)
+  if (l === activations.length - 1) {
     return deltaCost(aL, y);
-  
+  }
+
   // w(L+1) = weights to the right
-  const wR: Matrix = weights[l + 1]
-  console.log('wR', wR.data);
+  const wL_1: Matrix = weights[l + 1];
 
   // z(L+1) = w(L+1) * (a(L)) + b(L+1)
-  const zL: Matrix = Matrix.DotProduct(wR, aL).add(biases[l + 1])
-  console.log('zL', zL.data);
-  
-  // dC/dA(L+1) = change in cost function in respect to right activation layer
-  // return: ∑ w(L+1) * sigmoidPrime(z(L+1)) * dC/dA(L+1)
+  const zL_1: Matrix = Matrix.DotProduct(wL_1, aL).add(biases[l + 1]);
+
+  // deltaCost / a(L + 1)
+  const delta = dCdA(
+    activations,
+    weights,
+    biases,
+    l + 1,
+    y
+  );
+
   return Matrix.DotProduct(
-    Matrix.DotProduct(
-      wR,
-      Matrix.Map(zL, deltaSigmoid)
-    ),
-    dCdA(
-      activations,
-      weights,
-      biases,
-      l + 1,
-      y)
+    Matrix.Transpose(wL_1),
+    Matrix.HadamardProduct(
+      delta,
+      zL_1.map(deltaSigmoid)
+    )
   );
 }
 
@@ -56,6 +59,7 @@ export const dCdA = (
  * Change to cost function in respect to given weights layer
  */
 export const dCdW = (
+  inputLayer: Matrix,
   activations: Matrix[],
   weights: Matrix[],
   biases: Matrix[],
@@ -64,47 +68,30 @@ export const dCdW = (
 ): Matrix => {
 
   // a(L-1) = left activation layer
-  const aL_1 = activations[l - 1];
-  console.log('aL_1', aL_1.data);
+  const aL_1 = l > 0 ? activations[l - 1] : inputLayer
+
   // w(L) = these weights
-  const wL = weights[l];
-  console.log('wL', wL.data);
+  const wL = weights[l]
+
   // b(L) = these biases (on right activation layer)
   const bL = biases[l];
-  console.log('bL', bL.data);
+
   // z(L) = w(L) * a(L-1) + b(L)
   const zL = Matrix.DotProduct(wL, aL_1).add(bL);
-  console.log('zL', zL.data);
 
   // dC/dA = change in cost function in respect to right activation layer
-
-  // return: a(L-1) * sigmoidPrime(z(L)) * dC/dA
-  const test = Matrix.DotProduct(
-    aL_1,
-    Matrix.Map(zL, deltaSigmoid)
-  );
-  console.log('test', test.data);
-  const wut = dCdA(
+  const deltaCostTo_aL = dCdA(
     activations,
     weights,
     biases,
     l,
     y
   );
-  console.log(wut);
-  
+
+  // return: a(L-1) * sigmoidPrime(z(L)) * dC/dA
   return Matrix.DotProduct(
-    Matrix.DotProduct(
-      aL_1,
-      Matrix.Map(zL, deltaSigmoid)
-    ),
-    dCdA(
-      activations,
-      weights,
-      biases,
-      l,
-      y
-    )
+    Matrix.HadamardProduct(deltaCostTo_aL, zL.map(deltaSigmoid)),
+    Matrix.Transpose(aL_1)
   );
 }
 
@@ -112,6 +99,7 @@ export const dCdW = (
  * Change to cost function in respect to given biases layer
  */
 export const dCdB = (
+  inputLayer: Matrix,
   activations: Matrix[],
   weights: Matrix[],
   biases: Matrix[],
@@ -120,7 +108,7 @@ export const dCdB = (
 ): Matrix => {
 
   // a(L-1) = left activation layer
-  const aL_1 = activations[l - 1];
+  const aL_1 = l > 0 ? activations[l - 1] : inputLayer
   // w(L) = these weights
   const wL = weights[l];
   // b(L) = these biases (on right activation layer)
@@ -129,52 +117,43 @@ export const dCdB = (
   const zL = Matrix.DotProduct(wL, aL_1).add(bL);
 
   // return: 1 * sigmoidPrime(z(L) * dC/dA)
-  return Matrix.DotProduct(
-    zL.map(deltaSigmoid),
-    dCdA(
-      activations,
-      weights,
-      biases,
-      l,
-      y
-    )
-  );
+  return Matrix.HadamardProduct(dCdA(
+    activations,
+    weights,
+    biases,
+    l,
+    y
+  ), zL.map(deltaSigmoid));
 }
 
-export const calculateWeightDeltas = (
+export const calculateDeltas = (
   activations: Matrix[],
   weights: Matrix[],
   biases: Matrix[],
   expected: Matrix
-): Matrix[] => {
+): {
+  deltaWeights: Matrix[],
+  deltaBiases: Matrix[]
+ } => {
 
-  let weightDeltas: Matrix[] = [];
+  const inputActivation: Matrix[] = [...activations];
+  activations = inputActivation.splice(1);
 
-  // loop backwards? through weights
-  for (let i = weights.length - 1; i > -1; i--) {
-    weightDeltas.push(dCdW(activations, weights, biases, weights.length - 1 - i, expected));
+  const deltaWeights: Matrix[] = [];
+  const deltaBiases: Matrix[] = [];
+
+  for (let i = weights.length - 1; i >= 0; i--) {
+
+    // -- Weights --
+    // w_jk = weight attached to k-th neuron (left) and j-th neuron (right)
+    // How bad was the last activation layer?
+    
+    deltaWeights.push(dCdW(inputActivation[0], activations, weights, biases, i, expected));
+    deltaBiases.push(dCdB(inputActivation[0], activations, weights, biases, i, expected));
   }
+  
+  deltaWeights.reverse();
+  deltaBiases.reverse();
 
-  // for (let i = 0; i < weights.length; i++) {
-  //   weightDeltas.push(dCdW(activations, weights, biases, i, expected));
-  // }
-
-  return weightDeltas.reverse();
-}
-
-export const calculateBiasDeltas = (
-  activations: Matrix[],
-  weights: Matrix[],
-  biases: Matrix[],
-  expected: Matrix
-): Matrix[] => {
-
-  let biasDeltas: Matrix[] = [];
-
-  // loop backwards through biases
-  for (let i = biases.length - 1; i > -1; i--) {
-    biasDeltas.push(dCdB(activations, weights, biases, i, expected))
-  }
-
-  return biasDeltas.reverse();
+  return { deltaWeights, deltaBiases }
 }

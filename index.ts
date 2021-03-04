@@ -1,9 +1,11 @@
-import { NetworkConfig, NeuralNetwork } from "./network/Network";
+import { Matrix } from "./math/matrix/Matrix";
+import { MatrixStatic } from "./math/matrix/MatrixStatic";
+import { NetworkConfig, NetworkTraining, NeuralNetwork } from "./network/Network";
 
 const config: NetworkConfig = {
   inputSize: 4,
   outputSize: 1,
-  layerSizes: [3, 3],
+  layerSizes: [4, 3],
   iterations: 20
 };
 
@@ -29,17 +31,21 @@ const tests = [
     input: [ 0, 0, 0, 1 ],
     output: [ 0 ]
   }
-]
+];
 
-network.run(tests[0].input);
+const quiz = [ 0, 1, 0, 0];
+const dumb = network.run(quiz);
+console.log('Dumb guess: ', dumb);
 
-// network.train(tests);
+// console.log('activations: ');
+// network.DEBUG('activations');
 
-console.log('activations: ');
-network.DEBUG('activations');
+// console.log('weights: ');
+// network.DEBUG('weights');
 
-console.log('weights: ');
-network.DEBUG('weights');
+// console.log('biases: ');
+// network.DEBUG('biases');
 
-console.log('biases: ');
-network.DEBUG('biases');
+network.train(tests);
+const guess = network.run(quiz);
+console.log('Educated guess: ', guess);

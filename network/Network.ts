@@ -1,5 +1,5 @@
 import { Matrix } from "../math/matrix/Matrix";
-import { calculateBiasDeltas, calculateWeightDeltas, cost, sigmoid } from "../math/formulas";
+import { calculateDeltas, cost, sigmoid } from "../math/formulas";
 
 const chalk = require('chalk');
 
@@ -136,52 +136,44 @@ export class NeuralNetwork {
     // TODO
   }
 
-  public train = (tests: NetworkTraining[], learningRate: number = 0.1): void => {
-    
-    return;
-    
-    // Init
-    this.verifyTrainingInput(tests);
-
+  private doTestExample = (tests: NetworkTraining[], learningRate = 0.1) => {
     tests.forEach(({ input, output }) => {
 
-      // Run test
+      // Run test and grab output
       this.run(input);
-      const actual = this.activations[this.activations.length - 1];
+      const actual: Matrix = this.activations[this.activations.length - 1];
 
       // Convert expected output to Matrix (y)
-      const expected = Matrix.BuildFromArray(output);
+      const expected: Matrix = Matrix.BuildFromArray(output);
 
       // Calculate error (actual <-> expected)
-      const err = cost(actual, expected);
-      console.log(err.data);
+      const err: Matrix = cost(actual, expected);
 
       // Calculate all deltaWeights
-      const deltaWeights: Matrix[] = calculateWeightDeltas(
+      const { deltaWeights, deltaBiases } = calculateDeltas(
         this.activations,
         this.weights,
         this.biases,
         expected
       );
-      
-      // Calculate all deltaBiases
-      // const deltaBiases: Matrix[] = calculateBiasDeltas(
-      //   this.activations,
-      //   this.weights,
-      //   this.biases,
-      //   expected
-      // );
 
       // Update weights by learning rate
-      // this.weights = this.weights.map((m, i) => Matrix.Subtract(m, deltaWeights[i]));
+      this.weights = this.weights.map((m, i) => Matrix.Subtract(m, deltaWeights[i].map(x => x * learningRate)));
 
       // Update biases by learning rate
-      // this.biases = this.biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i]));
-
-      // TODO
-      // Iterate until under min err threshold
-
+      this.biases = this.biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i].map(x => x * learningRate)));
     })
+  }
+
+  public train = (tests: NetworkTraining[], learningRate: number = 0.1): void => {
+
+    // Init
+    this.verifyTrainingInput(tests);
+
+    // Do the thing
+    for (let i = 0; i < 10000; i++) {
+      this.doTestExample(tests, learningRate);
+    }
 
   }
 

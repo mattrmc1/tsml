@@ -7,6 +7,7 @@ enum MatrixStaticValidation {
   BuildFromArray = 'BuildFromArray',
   FlattenToArray = 'FlattenToArray',
   DotProduct = 'DotProduct',
+  HadamardProduct = 'HadamardProduct',
   Add = 'Add',
   Subtract = 'Subtract',
   Transpose = 'Transpose',
@@ -40,7 +41,14 @@ export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
       // console.log(chalk.red(message));
       // console.log(chalk.red(table(left.data)))
       // console.log(chalk.red(table(right.data)))
-      throw new Error("[Dot Product Error] Mismatched rows and colums");
+      throw new Error(message);
+    }
+  },
+
+  HadamardProduct: (left: Matrix, right: Matrix) => {
+    if (left.rows !== right.rows || left.cols !== right.cols) {
+      const message: string = "[Hadamard Product Error] Matrices but have identical dimensions"
+      throw new Error(message);
     }
   },
 

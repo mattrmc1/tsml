@@ -46,7 +46,7 @@ export class MatrixStatic {
   }
 
   /**
-   * "Multiplies" two matrices and returns a new matrix of the dot product
+   * Multiplies two matrices and returns a new matrix of the dot product
    * @param left Left side of the Dot Product
    * @param right Right side of the Dot Product
    * @returns Product of the Dot Product
@@ -64,6 +64,19 @@ export class MatrixStatic {
           sum += left.data[i][k] * right.data[k][j];
         }
         product.data[i][j] = sum;
+      }
+    }
+    return product;
+  }
+  
+  static HadamardProduct = (left: Matrix, right: Matrix): Matrix => {
+
+    Validate.HadamardProduct(left, right);
+
+    const product = new Matrix(left.rows, left.cols);
+    for (let i = 0; i < product.rows; i++) {
+      for (let j = 0; j < product.cols; j++) {
+        product.data[i][j] = left.data[i][j] * right.data[i][j];
       }
     }
     return product;
