@@ -56,7 +56,7 @@ describe("Matric Static DotProduct", () => {
   })
 })
 
-describe("Matric Instance Multiply", () => {
+describe("Matrix Instance Multiply", () => {
 
   // Passing Tests
   instance_DotProduct_Pass.forEach(({ description, self, param, expected }) => {

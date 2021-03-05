@@ -22,3 +22,18 @@ export interface IMatrixBuildFromArrayTestData {
   expected?: number[][];
   errorMessage?: string;
 }
+
+export interface IMatrixFlattenToArrayTestData {
+  description: string;
+  input: Matrix;
+  expected?: number[];
+  errorMessage?: string;
+}
+
+export interface IMatrixLoopTestData {
+  description: string;
+  input: Matrix;
+  func: (m: number) => number;
+  expected?: Matrix;
+  errorMessage?: string;
+}

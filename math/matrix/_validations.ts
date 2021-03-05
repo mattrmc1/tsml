@@ -30,8 +30,10 @@ export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
   },
 
   FlattenToArray: (matrix: Matrix) => {
+    if (!matrix) throw new Error('[FlattenToArray] Undefined argument');
     if (matrix.cols > 1) {
       // console.log(chalk.yellow("[FlattenToArray] An array with multiple columns was flattened"));
+      throw new Error('[FlattenToArray] Matrix cannot be flattened if it has multiple columns')
     }
   },
 
