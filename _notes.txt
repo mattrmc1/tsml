@@ -1,0 +1,15 @@
+TODO
+
+• [Test] Matrix class
+• [Test] Network
+• [Test] DeltaHandler
+
+• [Optimization] Store the zL values somewhere to cut down on DotProduct calls
+• [Optimization] Research how to handle "dead" neurons on continuous backpropagation
+• [Optimization] Make the size of the hidden layer(s) variable based on neuron activation
+
+• [Interface] Accept JSON as Input/Output and map back on Output from .run
+• [Interface] Asynchronous methods for training and running
+• [Interface][Config] Learning Rate
+• [Interface][Config] Iterations
+• [Interface][Config] Error Threshold
