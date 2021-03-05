@@ -1,4 +1,4 @@
-import IMatrix from "./IMatrix";
+import IMatrix from "../../interfaces/IMatrix";
 import { MatrixStatic } from "./MatrixStatic";
 import { Validate } from "./_validations";
 

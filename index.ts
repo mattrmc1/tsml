@@ -1,6 +1,7 @@
-import { Matrix } from "./math/matrix/Matrix";
-import { MatrixStatic } from "./math/matrix/MatrixStatic";
-import { NetworkConfig, NetworkTraining, NeuralNetwork } from "./network/Network";
+import { NetworkConfig } from "./@types/NetworkConfig";
+import { NeuralNetwork } from "./network/Network";
+
+const chalk = require('chalk');
 
 const config: NetworkConfig = {
   inputSize: 4,
@@ -11,6 +12,7 @@ const config: NetworkConfig = {
 
 const network = new NeuralNetwork(config);
 
+console.log(chalk.yellow('Initializing...'));
 network.initialize();
 
 // 1 = even index, 0 = odd index
@@ -33,19 +35,32 @@ const tests = [
   }
 ];
 
-const quiz = [ 0, 1, 0, 0];
-const dumb = network.run(quiz);
-console.log('Dumb guess: ', dumb);
+const dumbs = [];
+const smarts = []
 
-// console.log('activations: ');
-// network.DEBUG('activations');
+console.log(chalk.yellow('Running dumb...'));
+tests.forEach(t => {
+  const actual = network.run(t.input);
+  dumbs.push({
+    expected: t.output,
+    actual
+  });
+});
 
-// console.log('weights: ');
-// network.DEBUG('weights');
-
-// console.log('biases: ');
-// network.DEBUG('biases');
-
+console.log(chalk.yellow('Learning...'));
 network.train(tests);
-const guess = network.run(quiz);
-console.log('Educated guess: ', guess);
+
+console.log(chalk.yellow('Running smart...'));
+tests.forEach(t => {
+  const actual = network.run(t.input);
+  smarts.push({
+    expected: t.output,
+    actual
+  });
+});
+
+console.log('DUMB');
+console.log(dumbs);
+
+console.log('SMART');
+console.log(smarts);
