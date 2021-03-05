@@ -1,6 +1,8 @@
 import { NetworkConfig } from "./@types/NetworkConfig";
 import { NeuralNetwork } from "./network/Network";
 
+export { NeuralNetwork } from './network/Network';
+
 const chalk = require('chalk');
 
 const config: NetworkConfig = {
