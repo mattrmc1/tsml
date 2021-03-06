@@ -1,8 +1,5 @@
 import { Matrix } from "./Matrix";
 
-const chalk = require('chalk');
-const { table } = require('table');
-
 enum MatrixStaticValidation {
   BuildFromArray = 'BuildFromArray',
   FlattenToArray = 'FlattenToArray',
@@ -13,6 +10,8 @@ enum MatrixStaticValidation {
   Transpose = 'Transpose',
   Map = 'Map'
 };
+
+const isIdenticalDimensions = (m: Matrix, n: Matrix): boolean => m.rows === n.rows && m.cols === n.cols;
 
 export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
 
@@ -49,19 +48,19 @@ export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
   },
 
   HadamardProduct: (left: Matrix, right: Matrix) => {
-    if (left.rows !== right.rows || left.cols !== right.cols) {
+    if (!isIdenticalDimensions(left, right)) {
       throw new Error("[Hadamard Product Error] Matrices but have identical dimensions");
     }
   },
 
   Add: (left: Matrix, right: Matrix) => {
-    if (left.rows !== right.rows || left.cols !== right.cols) {
+    if (!isIdenticalDimensions(left, right)) {
       throw new Error('[Addition Error] Matrices must have the same dimensions');
     }
   },
 
   Subtract: (left: Matrix, right: Matrix) => {
-    if (left.rows !== right.rows || left.cols !== right.cols) {
+    if (!isIdenticalDimensions(left, right)) {
       throw new Error('[Subtraction Error] Matrices must have the same dimensions');
     }
   },

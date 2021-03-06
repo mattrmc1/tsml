@@ -45,8 +45,20 @@ export class Matrix extends MatrixStatic implements IMatrix {
   }
 
   public substract = (input: number | IMatrix): IMatrix => {
-    // TODO
-    throw new Error("Method not implemented.");
+
+    if (typeof input === "number") {
+      return this.map(x => x - input);
+    }
+
+    Validate.Subtract(this, input);
+
+    for (let i = 0; i < this.rows; i++) {
+      for(let j = 0; j < this.cols; j++) {
+        this.data[i][j] = this.data[i][j] - input.data[i][j];
+      }
+    }
+
+    return this;
   }
 
   public multiply = (input: number | IMatrix): IMatrix => {

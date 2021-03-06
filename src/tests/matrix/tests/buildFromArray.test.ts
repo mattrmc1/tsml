@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix";
-import { BuildFromArray_Fail, BuildFromArray_Pass } from "./buildFromArray.data";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { BuildFromArray_Fail, BuildFromArray_Pass } from "../data/buildFromArray.data";
 
 describe("Matrix Static BuildFromArray", () => {
 

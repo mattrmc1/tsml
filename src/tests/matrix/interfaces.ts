@@ -1,4 +1,4 @@
-import { Matrix } from "../Matrix";
+import { Matrix } from "../../math/matrix/Matrix";
 
 export interface IMatrixMathStaticTestData {
   description: string;

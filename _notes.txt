@@ -1,6 +1,5 @@
 TODO
 
-• [Test] Matrix class
 • [Test] Network
 • [Test] DeltaHandler
 

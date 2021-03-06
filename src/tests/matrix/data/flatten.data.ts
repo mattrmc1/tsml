@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix";
-import { IMatrixFlattenToArrayTestData, } from "./_interfaces";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { IMatrixFlattenToArrayTestData } from "../interfaces";
 
 export const FlattenToArray_Pass: IMatrixFlattenToArrayTestData[] = [
   {

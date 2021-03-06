@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix"
-import { Transpose_Fail, Transpose_Pass } from "./transpose.data"
+import { Matrix } from "../../../math/matrix/Matrix"
+import { Transpose_Fail, Transpose_Pass } from "../data/transpose.data"
 
 describe("Matric Static Transpose", () => {
 

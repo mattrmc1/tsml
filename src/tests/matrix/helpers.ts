@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix";
-import { IMatrixMathInstanceTestData, IMatrixMathStaticTestData, IMatrixTransposeTestData } from "./_interfaces";
+import { Matrix } from "../../math/matrix/Matrix";
+import { IMatrixMathInstanceTestData, IMatrixMathStaticTestData, IMatrixTransposeTestData } from "./interfaces";
 
 export const randomizer = (x: number) => Math.floor(Math.random() * x + 1);
 

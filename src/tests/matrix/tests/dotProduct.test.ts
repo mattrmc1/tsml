@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix";
-import { instance_DotProduct_Fail, instance_DotProduct_Pass, static_DotProduct_Fail, static_DotProduct_Pass } from "./dotProduct.data";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { instance_DotProduct_Fail, instance_DotProduct_Pass, static_DotProduct_Fail, static_DotProduct_Pass } from "../data/dotProduct.data";
 
 describe("Matric Static DotProduct", () => {
 
@@ -16,6 +16,37 @@ describe("Matric Static DotProduct", () => {
     test(description, () => {
       expect( () => Matrix.DotProduct(left, right)).toThrow(errorMessage)
     })
+  })
+
+  // Specific Case
+  test("(2x3 and 3x2 specific test)", () => {
+
+    let i = 0;
+    const mapper = x => { i++; return i; }
+    
+    let left = new Matrix(2, 3).map(mapper);
+    let right = new Matrix(3, 2).map(mapper);
+    const product = Matrix.DotProduct(left, right);
+
+    const expectedLeft = [
+      [ 1, 2, 3 ],
+      [ 4, 5, 6 ]
+    ];
+
+    const expectedRight = [
+      [ 7, 8 ],
+      [ 9, 10 ],
+      [ 11, 12 ]
+    ];
+
+    const expectedProduct = [
+      [ 58, 64 ],
+      [ 139, 154 ]
+    ];
+
+    expect(left.data).toStrictEqual(expectedLeft);
+    expect(right.data).toStrictEqual(expectedRight);
+    expect(product.data).toStrictEqual(expectedProduct);
   })
 
   // Edge Case

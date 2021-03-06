@@ -1,10 +1,5 @@
-import { Matrix } from "../Matrix"
-import {
-  static_Add_Pass,
-  static_Add_Fail,
-  instance_Add_Pass,
-  instance_Add_Fail
-} from './addition.data';
+import { Matrix } from "../../../math/matrix/Matrix";
+import { instance_Add_Fail, instance_Add_Pass, static_Add_Fail, static_Add_Pass } from "../data/addition.data";
 
 describe("Matrix Static Addition", () => {
 
@@ -31,10 +26,9 @@ describe("Matrix Static Addition", () => {
 
     let actual = Matrix.Add(m, n);
 
-    expect(actual.data).toStrictEqual( [[5,5,5],[5,5,5]] );
     expect(m.data).toStrictEqual( [[2,2,2],[2,2,2]] );
     expect(n.data).toStrictEqual( [[3,3,3],[3,3,3]] );
-
+    expect(actual.data).toStrictEqual( [[5,5,5],[5,5,5]] );
   })
 });
 
@@ -53,6 +47,21 @@ describe("Matrix Instance Addition", () => {
     test(data.description, () => {
       expect(() => data.self.add(data.param)).toThrow(data.errorMessage);
     })
+  })
+
+  // Edge Cases
+  test("Chained additions should persist in state", () => {
+
+    const matrix = new Matrix(2,3).map(x => 10);
+    const s = new Matrix(2,3).map(x => 1);
+    const expected = new Matrix(2,3).map(x => 13);
+
+    matrix
+      .add(s)
+      .add(s)
+      .add(s);
+
+    expect(matrix.data).toStrictEqual(expected.data);
   })
 })
 

@@ -28,8 +28,8 @@ export const DEBUG_STATIC_FlattenToArray = (): void => {
 
 export const DEBUG_STATIC_DotProduct = (): void => {
   let i = 0;
-  const a = new Matrix(10,6).map(x => { i++; return i });
-  const b = new Matrix(6,1).map(x => { i++; return i });
+  const a = new Matrix(2,3).map(x => { i++; return i });
+  const b = new Matrix(3,2).map(x => { i++; return i });
 
   console.log(`
     DOT PRODUCT

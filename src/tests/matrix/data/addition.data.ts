@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix";
-import { IMatrixMathInstanceTestData, IMatrixMathStaticTestData } from "./_interfaces";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { IMatrixMathInstanceTestData, IMatrixMathStaticTestData } from "../interfaces";
 
 export const static_Add_Pass: IMatrixMathStaticTestData[] = [
   {

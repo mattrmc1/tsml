@@ -1,6 +1,6 @@
-import { Matrix } from "../Matrix";
-import { converter, GenerateIdentityProducts, GenerateMismatchedMatrix, GenerateReciprocalMatrix } from "./_helpers";
-import { IMatrixMathInstanceTestData, IMatrixMathStaticTestData } from "./_interfaces";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { converter, GenerateIdentityProducts, GenerateMismatchedMatrix, GenerateReciprocalMatrix } from "../helpers";
+import { IMatrixMathInstanceTestData, IMatrixMathStaticTestData } from "../interfaces";
 
 const GENERATE_TESTS: number = 10;
 const MAX_MATRIX_SIZE: number = 20

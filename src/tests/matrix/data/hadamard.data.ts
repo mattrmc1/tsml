@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix";
-import { IMatrixMathStaticTestData } from "./_interfaces";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { IMatrixMathStaticTestData } from "../interfaces";
 
 export const HadamardProduct_Pass: IMatrixMathStaticTestData[] = [
   {

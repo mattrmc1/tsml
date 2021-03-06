@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix";
-import { HadamardProduct_Fail, HadamardProduct_Pass } from "./hadamard.data";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { HadamardProduct_Fail, HadamardProduct_Pass } from "../data/hadamard.data";
 
 describe("Matric Static Hadamard Product", () => {
 

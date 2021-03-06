@@ -1,6 +1,6 @@
-import { Matrix } from "../Matrix";
-import { GenerateTransposedMatrix } from "./_helpers";
-import { IMatrixTransposeTestData } from "./_interfaces";
+import { Matrix } from "../../../math/matrix/Matrix";
+import { GenerateTransposedMatrix } from "../helpers";
+import { IMatrixTransposeTestData } from "../interfaces";
 
 export const Transpose_Pass: IMatrixTransposeTestData[] = [
   {

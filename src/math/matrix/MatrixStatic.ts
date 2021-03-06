@@ -46,7 +46,7 @@ export class MatrixStatic {
   }
 
   /**
-   * Multiplies two matrices and returns a new matrix of the dot product
+   * Dot Product
    * @param left Left side of the Dot Product
    * @param right Right side of the Dot Product
    * @returns Product of the Dot Product
@@ -55,7 +55,7 @@ export class MatrixStatic {
 
     Validate.DotProduct(left, right);
 
-    // This feel wildly inefficient...
+    // This feels wildly inefficient...
     const product = new Matrix(left.rows, right.cols)
     for (let i = 0; i < product.rows; i++) {
       for (let j = 0; j < product.cols; j++) {
@@ -69,6 +69,12 @@ export class MatrixStatic {
     return product;
   }
   
+  /**
+   * HadamardProduct: Multiplies all elements of Matrix
+   * @param m Left side of the Hadamard Product
+   * @param n Right side of the Hadamard Product
+   * @returns 
+   */
   static HadamardProduct = (left: Matrix, right: Matrix): Matrix => {
 
     Validate.HadamardProduct(left, right);
@@ -83,7 +89,7 @@ export class MatrixStatic {
   }
 
   /**
-   * Adds Matrix[n] to Matrix[m] and returns Matrix[m]
+   * Adds Matrix[n] to Matrix[m] and returns new Matrix with sum
    * @param m Matrix to be mutated
    * @param n Matrix to be added
    */
@@ -136,7 +142,7 @@ export class MatrixStatic {
 
   static Map = (m: Matrix, func: (x: number) => number): Matrix => {
     
-    // Validate
+    // Validate?
 
     let result = new Matrix(m.rows, m.cols);
 

@@ -1,5 +1,5 @@
-import { Matrix } from "../Matrix"
-import { FlattenToArray_Fail, FlattenToArray_Pass } from "./flatten.data"
+import { Matrix } from "../../../math/matrix/Matrix";
+import { FlattenToArray_Fail, FlattenToArray_Pass } from "../data/flatten.data";
 
 fdescribe("Matric Static FlattenToArray", () => {
 

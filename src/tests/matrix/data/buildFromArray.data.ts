@@ -1,4 +1,4 @@
-import { IMatrixBuildFromArrayTestData } from "./_interfaces";
+import { IMatrixBuildFromArrayTestData } from "../interfaces";
 
 export const BuildFromArray_Pass: IMatrixBuildFromArrayTestData[] = [
   {
