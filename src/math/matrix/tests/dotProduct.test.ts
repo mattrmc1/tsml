@@ -18,41 +18,21 @@ describe("Matric Static DotProduct", () => {
     })
   })
 
-  // Edge Cases
+  // Edge Case
   test("Matrices passed in as parameters should NOT be mutated", () => {
 
-    const leftRows = 2;
-    const leftCols = 3;
-    const rightRows = 3;
-    const rightCols = 2;
-
-    // [
-    //   [2,2,2],
-    //   [2,2,2]
-    // ]
-    let left = new Matrix(leftRows, leftCols).map(x => 2);
-
-    // [
-    //   [3,3],
-    //   [3,3],
-    //   [3,3]
-    // ]
-    let right = new Matrix(rightRows, rightCols).map(x => 3);
-
-    // [
-    //   [ 18, 18 ],
-    //   [ 18, 18 ]
-    // ]
+    let left = new Matrix(2, 3).map(x => 2);
+    let right = new Matrix(3, 2).map(x => 3);
     const actual = Matrix.DotProduct(left, right);
 
-    expect(left.rows).toBe(leftRows);
-    expect(left.cols).toBe(leftCols);
-    expect(right.rows).toBe(rightRows);
-    expect(right.cols).toBe(rightCols);
+    expect(left.rows).toBe(2);
+    expect(left.cols).toBe(3);
+    expect(right.rows).toBe(3);
+    expect(right.cols).toBe(2);
 
-    expect(actual.data).toStrictEqual( [[18,18],[18,18]] );
-    expect(left.data).toStrictEqual( [[2,2,2],[2,2,2]] );
-    expect(right.data).toStrictEqual( [[3,3],[3,3],[3,3]] );
+    expect(actual.data).toStrictEqual([ [18,18], [18,18] ]);
+    expect(left.data).toStrictEqual([ [2,2,2], [2,2,2] ]);
+    expect(right.data).toStrictEqual([ [3,3], [3,3], [3,3] ]);
   })
 })
 

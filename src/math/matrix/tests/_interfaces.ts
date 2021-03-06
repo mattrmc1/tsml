@@ -18,7 +18,7 @@ export interface IMatrixMathInstanceTestData {
 
 export interface IMatrixBuildFromArrayTestData {
   description: string;
-  input: number[];
+  input: any;
   expected?: number[][];
   errorMessage?: string;
 }
@@ -34,6 +34,13 @@ export interface IMatrixLoopTestData {
   description: string;
   input: Matrix;
   func: (m: number) => number;
+  expected?: Matrix;
+  errorMessage?: string;
+}
+
+export interface IMatrixTransposeTestData {
+  description: string;
+  input: Matrix;
   expected?: Matrix;
   errorMessage?: string;
 }

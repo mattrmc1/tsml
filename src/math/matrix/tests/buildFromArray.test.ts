@@ -17,6 +17,4 @@ describe("Matrix Static BuildFromArray", () => {
       expect(() => Matrix.BuildFromArray(data.input)).toThrow(data.errorMessage)
     })
   })
-
-  // Edge Cases
 })

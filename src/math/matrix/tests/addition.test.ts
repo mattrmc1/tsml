@@ -1,5 +1,4 @@
 import { Matrix } from "../Matrix"
-import { MatrixAlt } from "../MatrixAlt";
 import {
   static_Add_Pass,
   static_Add_Fail,
@@ -37,22 +36,6 @@ describe("Matrix Static Addition", () => {
     expect(n.data).toStrictEqual( [[3,3,3],[3,3,3]] );
 
   })
-
-  // Matrix ALT
-  test("MatrixALT addition", () => {
-
-    let i = 0;
-    const mapper = (x: number) => { i++; return x + i; }
-    let m = new MatrixAlt(2,3).map(mapper);
-    let n = new MatrixAlt(2,3).map(mapper);
-
-    let actual = MatrixAlt.Add(m,n);
-
-    expect(m.data).toStrictEqual( [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ] );
-    expect(n.data).toStrictEqual( [ [ 7, 8 ], [ 9, 10 ], [ 11, 12 ] ] );
-    expect(actual.data).toStrictEqual( [ [ 8, 10 ], [ 12, 14 ], [ 16, 18 ] ] );
-  })
-
 });
 
 describe("Matrix Instance Addition", () => {

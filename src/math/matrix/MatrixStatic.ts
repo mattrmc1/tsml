@@ -123,6 +123,8 @@ export class MatrixStatic {
    */
   static Transpose = (m: Matrix): Matrix => {
 
+    Validate.Transpose(m);
+
     const result = new Matrix(m.cols, m.rows);
     for (let i = 0; i < m.rows; i++) {
       for (let j = 0; j < m.cols; j++) {

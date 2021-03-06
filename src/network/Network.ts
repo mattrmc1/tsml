@@ -18,7 +18,6 @@ export class NeuralNetwork implements INetwork {
   private sizes: number[];
 
   private activations: Matrix[] = [];
-  private zLs: Matrix[] = [];
   private weights: Matrix[] = [];
   private biases: Matrix[] = [];
 

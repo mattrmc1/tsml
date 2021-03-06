@@ -17,7 +17,7 @@ fdescribe("Matric Static FlattenToArray", () => {
     })
   })
 
-  // Edge Cases
+  // Edge Case
   test('Should FAIL correctly on undefined argument', () => {
     expect(() => Matrix.FlattenToArray(undefined)).toThrow('[FlattenToArray] Undefined argument');
   })
