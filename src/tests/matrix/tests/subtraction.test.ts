@@ -65,4 +65,16 @@ describe("Matric Instance Subtraction", () => {
 
     expect(matrix.data).toStrictEqual(expected.data);
   })
+
+  test("Matrix subtracted by a scalar should succeed", () => {
+    const matrix = new Matrix(2,3).map(x => 10);
+    const expected = new Matrix(2,3).map(x => 7);
+
+    matrix
+      .substract(1)
+      .substract(1)
+      .substract(1);
+
+    expect(matrix.data).toStrictEqual(expected.data);
+  })
 })

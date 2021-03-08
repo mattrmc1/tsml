@@ -61,29 +61,6 @@ export class Matrix extends MatrixStatic implements IMatrix {
     return this;
   }
 
-  public multiply = (input: number | IMatrix): IMatrix => {
-    if (typeof input === "number") {
-      return this.map(x => x * input);
-    }
-
-    Validate.DotProduct(this, input);
-    // This feel wildly inefficient...
-    const product = new Matrix(this.rows, input.cols)
-    for (let i = 0; i < product.rows; i++) {
-      for (let j = 0; j < product.cols; j++) {
-        let sum = 0;
-        for (let k = 0; k < this.cols; k++) {
-          sum += this.data[i][k] * input.data[k][j];
-        }
-        product.data[i][j] = sum;
-      }
-    }
-
-    this.rows = product.rows;
-    this.cols = product.cols;
-    this.data = product.data;
-  }
-
   public forEach = (func: (n: number) => any): IMatrix => {
     for (let i = 0; i < this.rows; i++) {
       for(let j = 0; j < this.cols; j++) {
@@ -104,8 +81,7 @@ export class Matrix extends MatrixStatic implements IMatrix {
     return this;
   }
 
-  // // TODO Simplifying for prettier logs | Revert for accuracy
-  public randomize = (): IMatrix => this.map(() => parseFloat(Math.random().toFixed(6)));
+  public randomize = (): IMatrix => this.map(() => Math.random());
 
   public print = (color: string = "green"): IMatrix => {
     console.log(chalk[color](table(this.data)));

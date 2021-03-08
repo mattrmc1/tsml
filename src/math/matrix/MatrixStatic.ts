@@ -1,7 +1,9 @@
 import { Matrix } from "./Matrix";
 import { Validate } from "./_validations";
 
-export class MatrixStatic {
+// Abstract class to hold the static methods (just for sanity sake)
+
+export abstract class MatrixStatic {
     /**
    * Builds a Matrix from an Array
    * 

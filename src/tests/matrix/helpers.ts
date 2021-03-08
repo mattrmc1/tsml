@@ -1,21 +1,7 @@
 import { Matrix } from "../../math/matrix/Matrix";
-import { IMatrixMathInstanceTestData, IMatrixMathStaticTestData, IMatrixTransposeTestData } from "./interfaces";
+import { IMatrixMathStaticTestData, IMatrixTransposeTestData } from "./interfaces";
 
 export const randomizer = (x: number) => Math.floor(Math.random() * x + 1);
-
-export const converter = ({
-  description,
-  left,
-  right,
-  expected,
-  errorMessage
-}: IMatrixMathStaticTestData): IMatrixMathInstanceTestData => ({
-  description,
-  self: left,
-  param: right,
-  expected,
-  errorMessage
-})
 
 export const GenerateIdentityProducts = ( limit: number ): IMatrixMathStaticTestData => {
   const size = randomizer(limit);

@@ -34,17 +34,6 @@ interface IMatrix {
   substract(input: IMatrix | number): IMatrix;
 
   /**
-   * Multiply a Matrix or Scalar
-   * 
-   * Use with caution!! If unsure, use Matrix.DotProduct instead
-   * 
-   * This method is able to change the values AND the dimensions of this matrix
-   * @param input Matrix or Scalar to be multiplied
-   * @returns this
-   */
-  multiply(input: IMatrix | number): IMatrix;
-
-  /**
    * Iterate through every element without mutating any 
    * of the elements' values
    * 

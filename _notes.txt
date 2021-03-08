@@ -13,3 +13,18 @@ TODO
 • [Interface][Config] Learning Rate
 • [Interface][Config] Iterations
 • [Interface][Config] Error Threshold
+
+Example: Training Data
+  {
+    input: { [key]: number },
+      -> Any length of object keys
+      -> Persists which order the keys are put into input activation layer
+      -> Convert to number[] and plug into input array
+    output: { [key]: number }
+      -> Any length of object keys
+      -> Persists which order the keys are put into expected layer
+      -> Convert to number[] and plug into expected array
+  }
+
+Example: Run (post training)
+  Should return output array mapped to { [key]: number } from training data

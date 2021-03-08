@@ -63,5 +63,17 @@ describe("Matrix Instance Addition", () => {
 
     expect(matrix.data).toStrictEqual(expected.data);
   })
+
+  test("Matrix added by a scalar should succeed", () => {
+    const matrix = new Matrix(2,3).map(x => 10);
+    const expected = new Matrix(2,3).map(x => 13);
+
+    matrix
+      .add(1)
+      .add(1)
+      .add(1);
+
+    expect(matrix.data).toStrictEqual(expected.data);
+  })
 })
 
