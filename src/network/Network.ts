@@ -8,8 +8,9 @@ const chalk = require('chalk');
 
 const defaultConfig: NetworkConfig = {
   layerSizes: [3, 3],
-  iterations: 10000,
-  learningRate: 0.1
+  maxIterations: 10000,
+  learningRate: 0.1,
+  errorThreshold: 0.001
 }
 
 export class NeuralNetwork implements INetwork {
@@ -160,16 +161,24 @@ export class NeuralNetwork implements INetwork {
 
     this.validateTrain(training);
 
-    let totalCost: number;
+    let totalCost: number = 0;
+    let iteration: number = 0;
 
-    for (let i = 0; i < this.config.iterations; i++) {
+    while (iteration < this.config.maxIterations) {
       let sum = 0;
+
       training.forEach(({ input, output }) => {
         this.run(input);
         let err = this.backPropagate(output);
         sum = sum + err;
       });
+
       totalCost = sum / training.length;
+
+      if (totalCost < this.config.errorThreshold)
+        break;
+      else
+        iteration++;
     }
 
     return totalCost;

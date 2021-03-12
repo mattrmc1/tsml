@@ -7,7 +7,7 @@ const config: NetworkConfig = {
   inputSize: 4,
   outputSize: 1,
   layerSizes: [4, 3],
-  iterations: 10000,
+  maxIterations: 10000,
   learningRate: 0.1
 };
 
