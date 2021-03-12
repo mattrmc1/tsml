@@ -6,8 +6,7 @@ const chalk = require('chalk');
 const config: NetworkConfig = {
   inputSize: 4,
   outputSize: 1,
-  layerSizes: [4, 3],
-  iterations: 20
+  layerSizes: [4, 3]
 };
 
 const network = new NeuralNetwork(config);
@@ -32,37 +31,41 @@ const tests = [
   }
 ];
 
-const dumbs = [];
-const smarts = []
-
-export const runExample = (): void => {
-  console.log(chalk.yellow('Initializing...'));
-  network.initialize();
+const runDumb = async (): Promise<void> => {
 
   console.log(chalk.yellow('Running dumb...'));
-  tests.forEach(t => {
-    const actual = network.run(t.input);
-    dumbs.push({
-      expected: t.output,
-      actual
-    });
-  });
+  const dumbs = [];
 
-  console.log(chalk.yellow('Learning...'));
-  network.train(tests);
-
-  console.log(chalk.yellow('Running smart...'));
-  tests.forEach(t => {
-    const actual = network.run(t.input);
-    smarts.push({
-      expected: t.output,
-      actual
-    });
-  });
-
+  for (let i = 0; i < tests.length; i++) {
+    const actual = await network.runAsync(tests[i].input);
+    dumbs.push({ expected: tests[i].output, actual });
+  }
+  
   console.log('DUMB');
   console.log(dumbs);
+}
+
+const runSmart = async (): Promise<void> => {
+
+  const smarts = [];
+
+  console.log(chalk.yellow('Learning...'));
+  await network.trainAsync(tests);
+
+  console.log(chalk.yellow('Running smart...'));
+  for(let i = 0; i < tests.length; i++) {
+    const actual = await network.runAsync(tests[i].input);
+    smarts.push({ expected: tests[i].output, actual });
+  }
 
   console.log('SMART');
   console.log(smarts);
+}
+
+export const runExample = async (): Promise<void> => {
+
+  console.log(chalk.yellow('Initializing...'));
+  network.initialize();
+  await runDumb();
+  runSmart();
 }

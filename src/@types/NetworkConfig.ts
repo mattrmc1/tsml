@@ -3,4 +3,5 @@ export type NetworkConfig = {
   outputSize?: number;
   layerSizes?: number[];
   iterations?: number;
+  learningRate?: number;
 }
