@@ -156,4 +156,14 @@ export abstract class MatrixStatic {
 
     return result;
   }
+
+  /**
+   * Reduce matrix data to the sum of all values within that matrix
+   * @param matrix Matrix to summate
+   * @returns Summation of all values
+   */
+  static Summation = (matrix: Matrix): number => {
+    const data: number[][] = [...matrix.data];
+    return data.reduce((a1, c1) => a1 + c1.reduce((a2, c2) => a2 + c2), 0);
+  }
 }

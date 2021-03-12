@@ -9,11 +9,8 @@ TODO
 • [Optimization] Make the size of the hidden layer(s) variable based on neuron activation
 
 • [Interface] Accept JSON as Input/Output and map back on Output from .run
-• [Interface] Asynchronous methods for training and running
 • [Interface] "Load" functionality to start with existing weights and biases
-• [Interface][Config] Learning Rate
-• [Interface][Config] Iterations
-• [Interface][Config] Error Threshold
+• [Interface][Config] Error Threshold (instead of iterations)
 
 Example: Training Data
   {

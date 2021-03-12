@@ -1,5 +1,5 @@
 import { Matrix } from "../math/matrix/Matrix";
-import { calculateDeltas, sigmoid } from '../math/formulas';
+import { calculateDeltas, cost, sigmoid } from '../math/formulas';
 import { NetworkConfig } from "../@types/NetworkConfig";
 import { NetworkTraining } from "../@types/NetworkTraining";
 import { INetwork } from "../interfaces/INetwork";
@@ -67,7 +67,7 @@ export class NeuralNetwork implements INetwork {
 
   //#region Private Methods
 
-  private verifyRun = ( input: number[] ): void => {
+  private validateRun = ( input: number[] ): void => {
     // Verification:
     // Activations should be initialized
     //   • If input size isn't specified, use this inputArray
@@ -80,7 +80,7 @@ export class NeuralNetwork implements INetwork {
     }
   }
 
-  private verifyTrain = ( input: NetworkTraining[] ): void => {
+  private validateTrain = ( input: NetworkTraining[] ): void => {
     // Verification:
     //   • If output size isn't specified, use training data
   }
@@ -101,12 +101,12 @@ export class NeuralNetwork implements INetwork {
     return Matrix.FlattenToArray(this.activations[this.activations.length - 1]);
   }
 
-  private backPropagate = (output: number[]): void => {
+  private backPropagate = (output: number[]): number => {
     // Convert expected output to Matrix (y)
     const expected: Matrix = Matrix.BuildFromArray(output);
       
     // Calculate all deltaWeights
-    const { deltaWeights, deltaBiases } = calculateDeltas(
+    const { deltaWeights, deltaBiases, costError } = calculateDeltas(
       this.activations,
       this.weights,
       this.biases,
@@ -118,6 +118,8 @@ export class NeuralNetwork implements INetwork {
 
     // Update biases by learning rate
     this.biases = this.biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i].map(x => x * this.config.learningRate)));
+
+    return Matrix.Summation(costError);
   }
 
   //#endregion
@@ -125,7 +127,7 @@ export class NeuralNetwork implements INetwork {
   //#region Public Methods
 
   public initialize = (): void => {
-    
+
     if (!this.sizes || !this.sizes.length) throw new Error("Sizes are required to be set prior to initialization");
 
     for(let i = 0; i < this.sizes.length; i++) {
@@ -142,7 +144,7 @@ export class NeuralNetwork implements INetwork {
   }
 
   public run = (input: number[]): number[] => {
-    this.verifyRun(input);
+    this.validateRun(input);
     return this.feedForward(input);
   }
 
@@ -154,17 +156,23 @@ export class NeuralNetwork implements INetwork {
     }
   })
 
-  public train = (training: NetworkTraining[]): void => {
+  public train = (training: NetworkTraining[]): number | void => {
 
-    this.verifyTrain(training);
+    this.validateTrain(training);
+
+    let totalCost: number;
 
     for (let i = 0; i < this.config.iterations; i++) {
+      let sum = 0;
       training.forEach(({ input, output }) => {
         this.run(input);
-        this.backPropagate(output);
-      })
+        let err = this.backPropagate(output);
+        sum = sum + err;
+      });
+      totalCost = sum / training.length;
     }
 
+    return totalCost;
   }
 
   public trainAsync = (data: NetworkTraining[]): Promise<number | void> => new Promise((resolve, reject) => {
