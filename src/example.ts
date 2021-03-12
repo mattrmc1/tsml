@@ -6,7 +6,9 @@ const chalk = require('chalk');
 const config: NetworkConfig = {
   inputSize: 4,
   outputSize: 1,
-  layerSizes: [4, 3]
+  layerSizes: [4, 3],
+  maxIterations: 10000,
+  learningRate: 0.1
 };
 
 const network = new NeuralNetwork(config);
@@ -50,7 +52,8 @@ const runSmart = async (): Promise<void> => {
   const smarts = [];
 
   console.log(chalk.yellow('Learning...'));
-  await network.trainAsync(tests);
+  const cost = await network.trainAsync(tests);
+  console.log('Cost: ', cost);
 
   console.log(chalk.yellow('Running smart...'));
   for(let i = 0; i < tests.length; i++) {

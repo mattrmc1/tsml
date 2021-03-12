@@ -44,3 +44,10 @@ export interface IMatrixTransposeTestData {
   expected?: Matrix;
   errorMessage?: string;
 }
+
+export interface IMarixSummationTestData {
+  description: string;
+  input: Matrix;
+  expected?: number;
+  errorMessage?: string;
+}
