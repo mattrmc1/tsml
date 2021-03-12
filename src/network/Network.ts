@@ -8,7 +8,8 @@ const chalk = require('chalk');
 
 const defaultConfig: NetworkConfig = {
   layerSizes: [3, 3],
-  iterations: 2000
+  iterations: 10000,
+  learningRate: 0.1
 }
 
 export class NeuralNetwork implements INetwork {
@@ -31,6 +32,7 @@ export class NeuralNetwork implements INetwork {
       this.config.outputSize
     ];
   }
+
   //#endregion
 
   public DEBUG = (debugData?: 'input' | 'output' | 'activations' | 'weights' | 'biases'): void => {
@@ -82,6 +84,42 @@ export class NeuralNetwork implements INetwork {
     // Verification:
     //   • If output size isn't specified, use training data
   }
+
+  private feedForward = ( inputArray: number[] ): number[] => {
+    const input: Matrix = Matrix.BuildFromArray(inputArray);
+    this.activations[0] = input;
+
+    for (let i = 0; i < this.weights.length; i++) {
+      
+      const zL = Matrix
+        .DotProduct(this.weights[i], this.activations[i])
+        .add(this.biases[i])
+
+      this.activations[i + 1] = Matrix.Map(zL, sigmoid);
+    }
+
+    return Matrix.FlattenToArray(this.activations[this.activations.length - 1]);
+  }
+
+  private backPropagate = (output: number[]): void => {
+    // Convert expected output to Matrix (y)
+    const expected: Matrix = Matrix.BuildFromArray(output);
+      
+    // Calculate all deltaWeights
+    const { deltaWeights, deltaBiases } = calculateDeltas(
+      this.activations,
+      this.weights,
+      this.biases,
+      expected
+    );
+
+    // Update weights by learning rate
+    this.weights = this.weights.map((m, i) => Matrix.Subtract(m, deltaWeights[i].map(x => x * this.config.learningRate)));
+
+    // Update biases by learning rate
+    this.biases = this.biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i].map(x => x * this.config.learningRate)));
+  }
+
   //#endregion
 
   //#region Public Methods
@@ -103,60 +141,39 @@ export class NeuralNetwork implements INetwork {
     }
   }
 
-  public run = (inputArray: number[]): number[] => {
-
-    this.verifyRun(inputArray)
-
-    const input: Matrix = Matrix.BuildFromArray(inputArray);
-    this.activations[0] = input;
-
-    for (let i = 0; i < this.weights.length; i++) {
-      
-      const zL = Matrix
-        .DotProduct(this.weights[i], this.activations[i])
-        .add(this.biases[i])
-
-      this.activations[i + 1] = Matrix.Map(zL, sigmoid);
-    }
-
-    return Matrix.FlattenToArray(this.activations[this.activations.length - 1]);
+  public run = (input: number[]): number[] => {
+    this.verifyRun(input);
+    return this.feedForward(input);
   }
 
-  public train = (tests: NetworkTraining[], learningRate: number = 0.1): void => {
+  public runAsync = async (input: number[]): Promise<number[]> => new Promise((resolve, reject) => {
+    try {
+      resolve(this.run(input));
+    } catch (e) {
+      reject(e);
+    }
+  })
 
-    const iterations: number = 10000;
+  public train = (training: NetworkTraining[]): void => {
 
-    for (let i = 0; i < iterations; i++) {
-      tests.forEach(({ input, output }) => {
+    this.verifyTrain(training);
 
-        this.verifyTrain(tests);
-
+    for (let i = 0; i < this.config.iterations; i++) {
+      training.forEach(({ input, output }) => {
         this.run(input);
-  
-        // Convert expected output to Matrix (y)
-        const expected: Matrix = Matrix.BuildFromArray(output);
-  
-        // Calculate all deltaWeights
-        const { deltaWeights, deltaBiases } = calculateDeltas(
-          this.activations,
-          this.weights,
-          this.biases,
-          expected
-        );
-  
-        // Update weights by learning rate
-        this.weights = this.weights.map((m, i) => Matrix.Subtract(m, deltaWeights[i].map(x => x * learningRate)));
-  
-        // Update biases by learning rate
-        this.biases = this.biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i].map(x => x * learningRate)));
+        this.backPropagate(output);
       })
     }
 
   }
 
-  public trainAsync(data: NetworkTraining[]): Promise<number | void> {
-    throw new Error("Method not implemented.");
-  }
+  public trainAsync = (data: NetworkTraining[]): Promise<number | void> => new Promise((resolve, reject) => {
+    try {
+      resolve(this.train(data));
+    } catch (e) {
+      reject(e);
+    }
+  })
 
   //#endregion
 }

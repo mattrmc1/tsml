@@ -22,6 +22,14 @@ export interface INetwork {
   run(input: number[]): number[];
 
   /**
+   * Async (Promise): Feed forward with current weights and biases
+   * @param input Input activation layer
+   * @returns A guess at Output activation layer
+   */
+  runAsync(input: number[]): Promise<number[]>;
+
+
+  /**
    * Trains the neural network with given test data
    * @param data Test data to train the system
    * @returns Error Cost after all tests
