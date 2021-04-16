@@ -3,6 +3,8 @@ import { calculateDeltas, cost, sigmoid } from '../math/formulas';
 import { NetworkConfig } from "../@types/NetworkConfig";
 import { NetworkTraining } from "../@types/NetworkTraining";
 import { INetwork } from "../interfaces/INetwork";
+import { parseInput } from "../util/parseInput";
+import { parseOutput } from "../util/parseOutput";
 
 const chalk = require('chalk');
 
@@ -16,6 +18,9 @@ const defaultConfig: NetworkConfig = {
 export class NeuralNetwork implements INetwork {
 
   //#region Member Variables
+
+  private outputKeys: string[] = [];
+
   private config: NetworkConfig;
   private sizes: number[];
 
@@ -191,6 +196,35 @@ export class NeuralNetwork implements INetwork {
       reject(e);
     }
   })
+
+  public trainWithObject = (
+    training: Array<{
+      input: Record<string, number>,
+      output: Record<string, number>
+    }>
+  ): number | void => {
+
+    const parsed: NetworkTraining[] = training.map(({ input, output }) => {
+      let parsedInput = parseInput(input);
+      let parsedOutput = parseOutput(output);
+
+      this.outputKeys = parsedOutput.keys;
+
+      return { input: parsedInput.values, output: parsedOutput.values }
+    });
+
+    return this.train(parsed);
+  }
+
+  public runWithObject = (input: Record<string, number>): Record<string,number> => {
+
+    const outputArr = this.feedForward(parseInput(input).values);
+    const record: Record<string,number> = {};
+    this.outputKeys.forEach((key, index) => {
+      record[key] = outputArr[index];
+    })
+    return record;
+  }
 
   //#endregion
 }

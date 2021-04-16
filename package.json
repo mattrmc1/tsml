@@ -23,7 +23,7 @@
     "TypeScript"
   ],
   "author": "Matt McCarthy",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/mattrmc1/tsml/issues"
   },

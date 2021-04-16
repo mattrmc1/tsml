@@ -1,4 +1,6 @@
-import { runExample } from './example';
+import { runExample, runExampleObject, runExampleObjectUnorganized } from './example';
 export { NeuralNetwork } from './network/Network';
 
-runExample();
+// runExample();
+// runExampleObject();
+runExampleObjectUnorganized();
