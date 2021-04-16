@@ -10,7 +10,6 @@ TODO
 
 • [Interface] Accept JSON as Input/Output and map back on Output from .run
 • [Interface] "Load" functionality to start with existing weights and biases
-• [Interface][Config] Error Threshold (instead of iterations)
 
 Example: Training Data
   {
