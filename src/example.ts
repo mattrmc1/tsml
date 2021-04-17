@@ -17,19 +17,19 @@ const network = new NeuralNetwork(config);
 const tests = [
   {
     input: [ 1, 0, 0, 0 ],
-    output: [ 1 ]
+    output: [ 1, 1 ]
   },
   {
     input: [ 0, 0, 1, 0 ],
-    output: [ 1 ]
+    output: [ 1, 1 ]
   },
   {
     input: [ 0, 1, 0, 0 ],
-    output: [ 0 ]
+    output: [ 0, 0 ]
   },
   {
     input: [ 0, 0, 0, 1 ],
-    output: [ 0 ]
+    output: [ 0, 0 ]
   }
 ];
 
@@ -171,29 +171,29 @@ const runSmartObject = (): void => {
   const smarts = [];
 
   console.log(chalk.yellow('Learning...'));
-  const cost = network.trainWithObject(testsObjects);
+  const cost = network.train(testsObjects);
   console.log('Cost: ', cost);
 
-  // console.log(chalk.yellow('Running smart (alt)...'));
-  // for(let i = 0; i < testsObjects.length; i++) {
-  //   const actual = network.runWithObject(testsObjects[i].input);
-  //   smarts.push({ expected: testsObjects[i].output, actual: JSON.stringify(actual) });
-  // }
+  console.log(chalk.yellow('Running smart (alt)...'));
+  for(let i = 0; i < testsObjects.length; i++) {
+    const actual = network.run(testsObjects[i].input);
+    smarts.push({ expected: testsObjects[i].output, actual: JSON.stringify(actual) });
+  }
 
-  // console.log('SMART');
-  // console.log(smarts);
+  console.log('SMART');
+  console.log(smarts);
 }
 
 const runSmartObjectUnorganized = (): void => {
   const smarts = [];
 
   console.log(chalk.yellow('Learning...'));
-  const cost = network.trainWithObject(testsObjectsUnorganized);
+  const cost = network.train(testsObjectsUnorganized);
   console.log('Cost: ', cost);
 
   console.log(chalk.yellow('Running smart (alt)...'));
   for(let i = 0; i < testsObjectsUnorganized.length; i++) {
-    const actual = network.runWithObject(testsObjectsUnorganized[i].input);
+    const actual = network.run(testsObjectsUnorganized[i].input);
     smarts.push({ expected: testsObjectsUnorganized[i].output, actual: JSON.stringify(actual) });
   }
 
@@ -203,15 +203,15 @@ const runSmartObjectUnorganized = (): void => {
 
 export const runExample = async (): Promise<void> => {
 
-  console.log(chalk.yellow('Initializing...'));
+  console.log(chalk.yellow('Async Initializing...'));
   network.initialize();
-  await runDumb();
+  // await runDumb();
   runSmart();
 }
 
 export const runExampleObject = (): void => {
 
-  console.log(chalk.yellow('Initializing...'));
+  console.log(chalk.yellow('Organized Initializing...'));
   network.initialize();
 
   runSmartObject();
@@ -219,7 +219,7 @@ export const runExampleObject = (): void => {
 
 export const runExampleObjectUnorganized = (): void => {
 
-  console.log(chalk.yellow('Initializing...'));
+  console.log(chalk.yellow('Unorganized Initializing...'));
   network.initialize();
 
   runSmartObjectUnorganized();
