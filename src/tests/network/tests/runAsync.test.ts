@@ -5,6 +5,7 @@ describe("Network Run Async", () => {
   // Complex
 
   // FAILING
+  // • Not initialized
   // Invalid input layer
   // Mix/match simple and complex inputs
   

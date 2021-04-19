@@ -10,16 +10,24 @@ const chalk = require('chalk');
 
 export class NeuralNetwork implements INetwork {
 
-  //#region Member Variables
+  //#region Variables
 
-  private outputKeys: string[] = [];
+  private _outputKeys: string[] = [];
 
-  private config: NetworkConfig;
-  private sizes: number[];
+  private _config: NetworkConfig;
+  public get config(): NetworkConfig { return this._config; }
 
-  private activations: Matrix[] = [];
-  private weights: Matrix[] = [];
-  private biases: Matrix[] = [];
+  private _sizes: number[];
+  public get sizes(): number[] { return this._sizes; }
+
+  private _activations: Matrix[] = [];
+  public get activations(): Matrix[] { return this._activations; }
+
+  private _weights: Matrix[] = [];
+  public get weights(): Matrix[] { return this._weights; }
+
+  private _biases: Matrix[] = [];
+  public get biases(): Matrix[] { return this._biases; }
 
   public static DEFAULT_CONFIG: NetworkConfig = {
     layerSizes: [3, 3],
@@ -33,12 +41,12 @@ export class NeuralNetwork implements INetwork {
   // TODO Break out input and output sizes from config object
   constructor (config: NetworkConfig = {}) {
 
-    this.config = { ...NeuralNetwork.DEFAULT_CONFIG, ...config }
+    this._config = { ...NeuralNetwork.DEFAULT_CONFIG, ...config }
 
-    this.sizes = [
-      this.config.inputSize,
-      ...this.config.layerSizes,
-      this.config.outputSize
+    this._sizes = [
+      this._config.inputSize,
+      ...this._config.layerSizes,
+      this._config.outputSize
     ];
   }
 
@@ -46,38 +54,54 @@ export class NeuralNetwork implements INetwork {
     switch (debugData) {
       
       case 'input':
-        this.activations[0].print("white")
+        this._activations[0].print("white")
         break;
 
       case 'output':
-        this.activations[this.activations.length - 1].print("red");
+        this._activations[this._activations.length - 1].print("red");
         break;
 
       case 'activations':
-        this.activations.forEach(a => a.print("red"));
+        this._activations.forEach(a => a.print("red"));
         break;
 
       case 'weights':
-        this.weights.forEach(m => m.print("cyan"));
+        this._weights.forEach(m => m.print("cyan"));
         break;
 
       case 'biases':
-        this.biases.forEach(b => b.print("magenta"));
+        this._biases.forEach(b => b.print("magenta"));
         break;
 
       default:
-        this.activations.forEach(a => a.print("red"));
-        this.weights.forEach(m => m.print("cyan"));
-        this.biases.forEach(b => b.print("magenta"));
+        this._activations.forEach(a => a.print("red"));
+        this._weights.forEach(m => m.print("cyan"));
+        this._biases.forEach(b => b.print("magenta"));
     }
   }
 
   //#region Validation
 
   private validateInitialization = () => {
-    if (!this.sizes || !this.sizes.length) {
-      throw new Error("Sizes are required to be set prior to initialization");
-    }
+    if (!this._sizes || !this._sizes.length)
+      throw new Error("[Initialization] Invalid activation layers");
+    
+    if (this._sizes.length < 3)
+      throw new Error("[Initialization] Hidden layers are required but couldn't be found in config");
+    
+    this._sizes.forEach(layer => {
+      if (!layer || layer < 1)
+        throw new Error("[Initialization] Neural network cannot have empty activation layers");
+    })
+
+    if (!this.config.maxIterations || this.config.maxIterations < 1)
+      throw new Error("[Initialization] Invalid max iterations in config");
+
+    if (!this.config.learningRate || this.config.learningRate <= 0 || this.config.learningRate >= 1)
+      throw new Error("[Initialization] Learning rate in config must be a number between 0 and 1");
+
+    if (!this.config.errorThreshold || this.config.errorThreshold <= 0 || this.config.errorThreshold >= 1)
+      throw new Error("[Initialization] Error threshold in config must be a number between 0 and 1");
   }
 
   private validateRun = (): void => {
@@ -100,8 +124,8 @@ export class NeuralNetwork implements INetwork {
       throw new Error("Input array cannot be empty");
     }
 
-    if (input.length !== this.sizes[0]) {
-      throw new Error(`The input arrray length (${input.length}) must match network's expected input size (${this.sizes[0]})`);
+    if (input.length !== this._sizes[0]) {
+      throw new Error(`The input arrray length (${input.length}) must match network's expected input size (${this._sizes[0]})`);
     }
 
   }
@@ -135,9 +159,9 @@ export class NeuralNetwork implements INetwork {
   //#region Private
 
   private reset = () => {
-    this.activations = [];
-    this.weights = [];
-    this.biases = [];
+    this._activations = [];
+    this._weights = [];
+    this._biases = [];
   }
 
   private trainSimple = (training: TrainingSimple[]): number | void => {
@@ -147,7 +171,7 @@ export class NeuralNetwork implements INetwork {
     let totalCost: number = 0;
     let iteration: number = 0;
 
-    while (iteration < this.config.maxIterations) {
+    while (iteration < this._config.maxIterations) {
       let sum = 0;
 
       training.forEach(({ input, output }) => {
@@ -158,7 +182,7 @@ export class NeuralNetwork implements INetwork {
 
       totalCost = sum / training.length;
 
-      if (totalCost < this.config.errorThreshold)
+      if (totalCost < this._config.errorThreshold)
         break;
       else
         iteration++;
@@ -169,18 +193,18 @@ export class NeuralNetwork implements INetwork {
 
   private feedForward = ( inputArray: number[] ): number[] => {
     const input: Matrix = Matrix.BuildFromArray(inputArray);
-    this.activations[0] = input;
+    this._activations[0] = input;
 
-    for (let i = 0; i < this.weights.length; i++) {
+    for (let i = 0; i < this._weights.length; i++) {
       
       const zL = Matrix
-        .DotProduct(this.weights[i], this.activations[i])
-        .add(this.biases[i])
+        .DotProduct(this._weights[i], this._activations[i])
+        .add(this._biases[i])
 
-      this.activations[i + 1] = Matrix.Map(zL, sigmoid);
+      this._activations[i + 1] = Matrix.Map(zL, sigmoid);
     }
 
-    return Matrix.FlattenToArray(this.activations[this.activations.length - 1]);
+    return Matrix.FlattenToArray(this._activations[this._activations.length - 1]);
   }
 
   private backPropagate = (output: number[]): number => {
@@ -189,17 +213,17 @@ export class NeuralNetwork implements INetwork {
       
     // Calculate all deltaWeights
     const { deltaWeights, deltaBiases, costError } = calculateDeltas(
-      this.activations,
-      this.weights,
-      this.biases,
+      this._activations,
+      this._weights,
+      this._biases,
       expected
     );
 
     // Update weights by learning rate
-    this.weights = this.weights.map((m, i) => Matrix.Subtract(m, deltaWeights[i].map(x => x * this.config.learningRate)));
+    this._weights = this._weights.map((m, i) => Matrix.Subtract(m, deltaWeights[i].map(x => x * this._config.learningRate)));
 
     // Update biases by learning rate
-    this.biases = this.biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i].map(x => x * this.config.learningRate)));
+    this._biases = this._biases.map((m, i) => Matrix.Subtract(m, deltaBiases[i].map(x => x * this._config.learningRate)));
 
     return Matrix.Summation(costError);
   }
@@ -213,16 +237,16 @@ export class NeuralNetwork implements INetwork {
     this.validateInitialization();
     this.reset();
 
-    for(let i = 0; i < this.sizes.length; i++) {
+    for(let i = 0; i < this._sizes.length; i++) {
 
-      const rows = this.sizes[i];
-      this.activations.push(new Matrix(rows, 1))
+      const rows = this._sizes[i];
+      this._activations.push(new Matrix(rows, 1))
 
       if (i === 0) continue;
 
-      const cols = this.sizes[i - 1];
-      this.weights.push(new Matrix(rows, cols).randomize());
-      this.biases.push(new Matrix(rows, 1).randomize());
+      const cols = this._sizes[i - 1];
+      this._weights.push(new Matrix(rows, cols).randomize());
+      this._biases.push(new Matrix(rows, 1).randomize());
     }
   }
 
@@ -245,7 +269,7 @@ export class NeuralNetwork implements INetwork {
 
       const outputArray: number[] = this.feedForward(parsed);
       const record: Record<string,number> = {};
-      this.outputKeys.forEach((key, index) => {
+      this._outputKeys.forEach((key, index) => {
         record[key] = outputArray[index];
       })
       return record;
@@ -274,7 +298,7 @@ export class NeuralNetwork implements INetwork {
     {
       this.validateComplexTrain(training as TrainingComplex[]);
       const { keys, simplified } = Converter.Training(training as TrainingComplex[]);
-      this.outputKeys = keys;
+      this._outputKeys = keys;
       return this.trainSimple(simplified);
     }
   }

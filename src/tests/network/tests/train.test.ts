@@ -7,6 +7,7 @@ describe("Network Train", () => {
   // • max iterations
 
   // FAILING
+  // • Not initialized
   // • Invalid training data
   
   test("Dummy", () => {

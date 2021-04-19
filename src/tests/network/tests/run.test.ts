@@ -5,6 +5,7 @@ describe("Network Run", () => {
   // Complex
 
   // FAILING
+  // • Not initialized
   // Invalid input layer
   // Mix/match simple and complex inputs
 
