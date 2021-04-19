@@ -8,20 +8,36 @@ TODO
 • [Optimization] Research how to handle "dead" neurons on continuous backpropagation
 • [Optimization] Make the size of the hidden layer(s) variable based on neuron activation
 
-• [Interface] Accept JSON as Input/Output and map back on Output from .run
 • [Interface] "Load" functionality to start with existing weights and biases
 
-Example: Training Data
+Training Example:
+[
   {
-    input: { [key]: number },
-      -> Any length of object keys
-      -> Persists which order the keys are put into input activation layer
-      -> Convert to number[] and plug into input array
-    output: { [key]: number }
-      -> Any length of object keys
-      -> Persists which order the keys are put into expected layer
-      -> Convert to number[] and plug into expected array
+    input: {
+      r: 0.5,
+      g: 0.3,
+      b: 0.6,
+      a: 0.2
+    },
+    output: {
+      dark: 0,
+      light: 1
+    }
+  },
+  {
+    input: {
+      g: 0.9,
+      r: 0.9,
+      b: 0.9,
+      a: 0.9
+    },
+    output: {
+      dark: 1,
+      light: 0
+    }
   }
+];
 
-Example: Run (post training)
-  Should return output array mapped to { [key]: number } from training data
+Running Example
+(IN):   { r, g, b, a }
+(OUT):  { dark, light }

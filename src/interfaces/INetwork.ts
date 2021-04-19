@@ -1,4 +1,5 @@
-import { NetworkTraining } from "../@types/NetworkTraining";
+import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
+import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
 
 export interface INetwork {
 
@@ -19,14 +20,14 @@ export interface INetwork {
    * @param input Input activation layer
    * @returns A guess at Output activation layer
    */
-  run(input: number[]): number[];
+  run(input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex;
 
   /**
    * Async (Promise): Feed forward with current weights and biases
    * @param input Input activation layer
    * @returns A guess at Output activation layer
    */
-  runAsync(input: number[]): Promise<number[]>;
+  runAsync(input: InputLayerSimple | InputLayerComplex): Promise<OutputLayerSimple | OutputLayerComplex>;
 
 
   /**
@@ -34,12 +35,12 @@ export interface INetwork {
    * @param data Test data to train the system
    * @returns Error Cost after all tests
    */
-  train(data: NetworkTraining[]): number | void
+  train(training: TrainingSimple[] | TrainingComplex[]): number | void
 
   /**
    * Async (Promise): Trains the neural network with given test data
    * @param data Test data to train the system
    * @returns Error Cost after all tests
    */
-  trainAsync(data: NetworkTraining[]): Promise<number | void>
+  trainAsync(training: TrainingSimple[] | TrainingComplex[]): Promise<number | void>
 }

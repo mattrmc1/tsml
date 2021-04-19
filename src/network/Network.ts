@@ -1,21 +1,19 @@
 import { Matrix } from "../math/matrix/Matrix";
-import { calculateDeltas, cost, sigmoid } from '../math/formulas';
+import { calculateDeltas, sigmoid } from '../math/formulas';
 import { NetworkConfig } from "../@types/NetworkConfig";
-import { NetworkTraining } from "../@types/NetworkTraining";
 import { INetwork } from "../interfaces/INetwork";
+import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
+import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
+import { Converter } from "../util/convert";
 
 const chalk = require('chalk');
-
-const defaultConfig: NetworkConfig = {
-  layerSizes: [3, 3],
-  maxIterations: 10000,
-  learningRate: 0.1,
-  errorThreshold: 0.001
-}
 
 export class NeuralNetwork implements INetwork {
 
   //#region Member Variables
+
+  private outputKeys: string[] = [];
+
   private config: NetworkConfig;
   private sizes: number[];
 
@@ -23,9 +21,19 @@ export class NeuralNetwork implements INetwork {
   private weights: Matrix[] = [];
   private biases: Matrix[] = [];
 
+  public static DEFAULT_CONFIG: NetworkConfig = {
+    layerSizes: [3, 3],
+    maxIterations: 10000,
+    learningRate: 0.1,
+    errorThreshold: 0.001
+  }
+
+  //#endregion
+
+  // TODO Break out input and output sizes from config object
   constructor (config: NetworkConfig = {}) {
 
-    this.config = { ...defaultConfig, ...config }
+    this.config = { ...NeuralNetwork.DEFAULT_CONFIG, ...config }
 
     this.sizes = [
       this.config.inputSize,
@@ -33,8 +41,6 @@ export class NeuralNetwork implements INetwork {
       this.config.outputSize
     ];
   }
-
-  //#endregion
 
   public DEBUG = (debugData?: 'input' | 'output' | 'activations' | 'weights' | 'biases'): void => {
     switch (debugData) {
@@ -66,24 +72,99 @@ export class NeuralNetwork implements INetwork {
     }
   }
 
-  //#region Private Methods
+  //#region Validation
 
-  private validateRun = ( input: number[] ): void => {
+  private validateInitialization = () => {
+    if (!this.sizes || !this.sizes.length) {
+      throw new Error("Sizes are required to be set prior to initialization");
+    }
+  }
+
+  private validateRun = (): void => {
+    
+    // TODO
+    // Check member variables have been initiated correctly
+
     // Verification:
     // Activations should be initialized
     //   • If input size isn't specified, use this inputArray
     //   • If layer sizes aren't specified, use the default
     //   • If output size isn't specified, throw error
+  }
+
+  private validateSimpleRun = (input: InputLayerSimple): void => {
+
+    this.validateRun();
+
+    if (!input.length) {
+      throw new Error("Input array cannot be empty");
+    }
 
     if (input.length !== this.sizes[0]) {
-      console.log(chalk.red("Input array must match inputSize from config"));
-      throw new Error("whoops");
+      throw new Error(`The input arrray length (${input.length}) must match network's expected input size (${this.sizes[0]})`);
+    }
+
+  }
+
+  private validateComplexRun = (input: InputLayerComplex): void => {
+
+    // TODO
+    // Ensure we have output keys (we were trained with complex in mind...)
+    // Verify we're [string]: number
+    // && Object.keys(input).length
+  }
+
+  private validateTrain = (training: TrainingSimple[] | TrainingComplex[]): void => {
+    if (!training || !training.length) {
+      throw new Error("Invalid training data received");
     }
   }
 
-  private validateTrain = ( input: NetworkTraining[] ): void => {
+  private validateSimpleTrain = ( training: TrainingSimple[] ): void => {
+    // Ensure all inputs and outputs are arrays of numbers between 0 and 1
+    // Ensure all input and output arrays are the same length respectively
+  }
+
+  private validateComplexTrain = ( training: TrainingComplex[] ): void => {
     // Verification:
     //   • If output size isn't specified, use training data
+  }
+
+  //#endregion
+
+  //#region Private
+
+  private reset = () => {
+    this.activations = [];
+    this.weights = [];
+    this.biases = [];
+  }
+
+  private trainSimple = (training: TrainingSimple[]): number | void => {
+
+    this.validateSimpleTrain(training);
+
+    let totalCost: number = 0;
+    let iteration: number = 0;
+
+    while (iteration < this.config.maxIterations) {
+      let sum = 0;
+
+      training.forEach(({ input, output }) => {
+        this.run(input);
+        let err = this.backPropagate(output);
+        sum = sum + err;
+      });
+
+      totalCost = sum / training.length;
+
+      if (totalCost < this.config.errorThreshold)
+        break;
+      else
+        iteration++;
+    }
+
+    return totalCost;
   }
 
   private feedForward = ( inputArray: number[] ): number[] => {
@@ -129,7 +210,8 @@ export class NeuralNetwork implements INetwork {
 
   public initialize = (): void => {
 
-    if (!this.sizes || !this.sizes.length) throw new Error("Sizes are required to be set prior to initialization");
+    this.validateInitialization();
+    this.reset();
 
     for(let i = 0; i < this.sizes.length; i++) {
 
@@ -144,12 +226,35 @@ export class NeuralNetwork implements INetwork {
     }
   }
 
-  public run = (input: number[]): number[] => {
-    this.validateRun(input);
-    return this.feedForward(input);
+  public run = (input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex => {
+
+    // (Handle simple)
+    if (Array.isArray(input))
+    {
+      this.validateSimpleRun(input);
+      return this.feedForward(input);
+    }
+
+    // (Handle complex)
+    if (typeof(input) === 'object')
+    {
+      this.validateComplexRun(input as InputLayerComplex);
+
+      const parsed: number[] = Converter.Input(input).values;
+      this.validateSimpleRun(parsed);
+
+      const outputArray: number[] = this.feedForward(parsed);
+      const record: Record<string,number> = {};
+      this.outputKeys.forEach((key, index) => {
+        record[key] = outputArray[index];
+      })
+      return record;
+    }
+
+    throw new Error("Invalid Input Layer");
   }
 
-  public runAsync = async (input: number[]): Promise<number[]> => new Promise((resolve, reject) => {
+  public runAsync = async (input: InputLayerSimple | InputLayerComplex): Promise<OutputLayerSimple | OutputLayerComplex> => new Promise((resolve, reject) => {
     try {
       resolve(this.run(input));
     } catch (e) {
@@ -157,36 +262,26 @@ export class NeuralNetwork implements INetwork {
     }
   })
 
-  public train = (training: NetworkTraining[]): number | void => {
+  public train = (training: TrainingSimple[] | TrainingComplex[]): number | void => {
 
     this.validateTrain(training);
 
-    let totalCost: number = 0;
-    let iteration: number = 0;
+    // Handle Simple
+    if (Array.isArray(training[0].input)) return this.trainSimple(training as TrainingSimple[]);
 
-    while (iteration < this.config.maxIterations) {
-      let sum = 0;
-
-      training.forEach(({ input, output }) => {
-        this.run(input);
-        let err = this.backPropagate(output);
-        sum = sum + err;
-      });
-
-      totalCost = sum / training.length;
-
-      if (totalCost < this.config.errorThreshold)
-        break;
-      else
-        iteration++;
+    // Handle Complex
+    if (!Array.isArray(training[0].input) && typeof(training[0].input) === 'object')
+    {
+      this.validateComplexTrain(training as TrainingComplex[]);
+      const { keys, simplified } = Converter.Training(training as TrainingComplex[]);
+      this.outputKeys = keys;
+      return this.trainSimple(simplified);
     }
-
-    return totalCost;
   }
 
-  public trainAsync = (data: NetworkTraining[]): Promise<number | void> => new Promise((resolve, reject) => {
+  public trainAsync = (training: TrainingSimple[] | TrainingComplex[]): Promise<number | void> => new Promise((resolve, reject) => {
     try {
-      resolve(this.train(data));
+      resolve(this.train(training));
     } catch (e) {
       reject(e);
     }
