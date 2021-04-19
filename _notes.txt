@@ -8,6 +8,7 @@ TODO
 • [Optimization] Research how to handle "dead" neurons on continuous backpropagation
 • [Optimization] Make the size of the hidden layer(s) variable based on neuron activation
 
+• [Interface] Refactor constructor/config to be clearer
 • [Interface] "Load" functionality to start with existing weights and biases
 
 Training Example:
