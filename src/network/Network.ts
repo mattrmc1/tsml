@@ -40,8 +40,6 @@ export class NeuralNetwork implements INetwork {
       ...this.config.layerSizes,
       this.config.outputSize
     ];
-
-    console.log(this.config);
   }
 
   public DEBUG = (debugData?: 'input' | 'output' | 'activations' | 'weights' | 'biases'): void => {
