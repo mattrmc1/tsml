@@ -22,20 +22,22 @@ const parseLayer = (input: Record<string, number>): {
 export class Converter {
   static Input = (input: InputLayerComplex): { keys: string[], values: InputLayerSimple } => parseLayer(input);
   static Output = (output: OutputLayerComplex): { keys: string[], values: OutputLayerSimple } => parseLayer(output);
-  static Training = (data: TrainingComplex[]): { keys: string[], simplified: TrainingSimple[] } => {
+  static Training = (data: TrainingComplex[]): { inputKeys: string[], outputKeys: string[], simplified: TrainingSimple[] } => {
 
-    let keys: string[] = [];
+    let inputKeys: string[] = [];
+    let outputKeys: string[] = [];
 
     const simplified: TrainingSimple[] = data.map(({ input, output }) => {
       
       const parsedInput = Converter.Input(input);
       const parsedOutput = Converter.Output(output);
 
-      keys = parsedOutput.keys;
+      inputKeys = parsedInput.keys;
+      outputKeys = parsedOutput.keys;
 
       return { input: parsedInput.values, output: parsedOutput.values }
     });
 
-    return { keys, simplified };
+    return { inputKeys, outputKeys, simplified };
   }
 }

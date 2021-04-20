@@ -12,6 +12,7 @@ export class NeuralNetwork implements INetwork {
 
   //#region Variables
 
+  private _inputKeys: string[] = [];
   private _outputKeys: string[] = [];
 
   private _config: NetworkConfig;
@@ -105,37 +106,46 @@ export class NeuralNetwork implements INetwork {
   }
 
   private validateRun = (): void => {
-    
-    // TODO
-    // Check member variables have been initiated correctly
-
-    // Verification:
-    // Activations should be initialized
-    //   • If input size isn't specified, use this inputArray
-    //   • If layer sizes aren't specified, use the default
-    //   • If output size isn't specified, throw error
+    if (
+      !this.activations
+      || !this.activations.length
+      || !this.weights
+      || !this.weights.length
+      || !this.biases
+      || !this.biases.length
+    ) {
+      throw new Error("[Run] Invalid or empty layers found. This is likely due to the neural network not being initialized");
+    }
   }
+    
 
   private validateSimpleRun = (input: InputLayerSimple): void => {
 
     this.validateRun();
 
-    if (!input.length) {
+    if (!input.length)
       throw new Error("Input array cannot be empty");
-    }
 
-    if (input.length !== this._sizes[0]) {
-      throw new Error(`The input arrray length (${input.length}) must match network's expected input size (${this._sizes[0]})`);
-    }
-
+    if (input.length !== this._sizes[0])
+      throw new Error(`The input array length (${input.length}) must match network's expected input size (${this._sizes[0]})`);
   }
 
   private validateComplexRun = (input: InputLayerComplex): void => {
 
-    // TODO
-    // Ensure we have output keys (we were trained with complex in mind...)
-    // Verify we're [string]: number
-    // && Object.keys(input).length
+    this.validateRun();
+
+    if (
+      !this._inputKeys
+      || !this._inputKeys.length
+      || !this._outputKeys
+      || !this._outputKeys.length
+    ) {
+      throw new Error("[Run] This network wasn't trained to handle this type of input");
+    }
+
+    const parsedInput = Converter.Input(input);
+    if (JSON.stringify(parsedInput.keys) !== JSON.stringify(this._inputKeys))
+      throw new Error('[Run] The input keys do not match the network keys this network was trained with');
   }
 
   private validateTrain = (training: TrainingSimple[] | TrainingComplex[]): void => {
@@ -232,7 +242,7 @@ export class NeuralNetwork implements INetwork {
 
   //#region Public Methods
 
-  public initialize = (): void => {
+  public initialize = (): NeuralNetwork => {
 
     this.validateInitialization();
     this.reset();
@@ -248,6 +258,8 @@ export class NeuralNetwork implements INetwork {
       this._weights.push(new Matrix(rows, cols).randomize());
       this._biases.push(new Matrix(rows, 1).randomize());
     }
+
+    return this;
   }
 
   public run = (input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex => {
@@ -297,8 +309,9 @@ export class NeuralNetwork implements INetwork {
     if (!Array.isArray(training[0].input) && typeof(training[0].input) === 'object')
     {
       this.validateComplexTrain(training as TrainingComplex[]);
-      const { keys, simplified } = Converter.Training(training as TrainingComplex[]);
-      this._outputKeys = keys;
+      const { inputKeys, outputKeys, simplified } = Converter.Training(training as TrainingComplex[]);
+      this._inputKeys = inputKeys
+      this._outputKeys = outputKeys;
       return this.trainSimple(simplified);
     }
   }

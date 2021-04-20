@@ -1,5 +1,6 @@
 import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
 import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
+import { NeuralNetwork } from "../network/Network";
 
 export interface INetwork {
 
@@ -13,7 +14,7 @@ export interface INetwork {
    * NOTE: Sizes of input, output, and hidden layers are 
    * expected to already have been set
    */
-  initialize(): void;
+  initialize(): NeuralNetwork;
 
   /**
    * Runs the feed forward algorithm with the current weights and biases
