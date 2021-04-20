@@ -92,20 +92,16 @@ describe("Network Run (Failing)", () => {
     "Then an error occurs", () => {
 
       // Arrange
-      const network1 = new NeuralNetwork(testConfig).initialize()
+      const network1 = new NeuralNetwork(testConfig).initialize();
       network1.train(simple);
 
-      const network2 = new NeuralNetwork(testConfig).initialize()
-      network2.train(simple);
-
-      const network3 = new NeuralNetwork(testConfig).initialize()
-      network3.train(unorganized);
+      const network2 = new NeuralNetwork(testConfig).initialize();
+      network2.train(unorganized);
 
       // Act
       // Assert
       expect(() => network1.run([1, 0, 0])).toThrowError("The input array length (3) must match network's expected input size (4)");
-      expect(() => network2.run({a: 0, b: 1, c: 0, d: 0})).toThrowError("[Run] This network wasn't trained to handle this type of input");
-      expect(() => network3.run({w: 0, x: 1, y: 0, z: 0})).toThrowError('[Run] The input keys do not match the network keys this network was trained with');
+      expect(() => network2.run({w: 0, x: 1, y: 0, z: 0})).toThrowError('[Run] The input keys do not match the network keys this network was trained with');
 
     })
   
@@ -115,9 +111,12 @@ describe("Network Run (Failing)", () => {
     "Then an error occurs", () => {
 
       // Arrange
+      const network = new NeuralNetwork(testConfig).initialize();
+      network.train(simple);
+
       // Act
       // Assert
-
+      expect(() => network.run({a: 0, b: 1, c: 0, d: 0})).toThrowError("[Run] This network wasn't trained to handle this type of input");
     })
 
   test(
@@ -126,8 +125,11 @@ describe("Network Run (Failing)", () => {
     "Then an error occurs", () => {
 
       // Arrange
+      const network = new NeuralNetwork(testConfig).initialize();
+      network.train(organized);
+
       // Act
       // Assert
-
+      expect(() => network.run([1, 0, 0, 0])).toThrowError("[Run] This network wasn't trained to handle this type of input");
     })
 })

@@ -123,6 +123,9 @@ export class NeuralNetwork implements INetwork {
 
     this.validateRun();
 
+    if (this._inputKeys.length)
+      throw new Error("[Run] This network wasn't trained to handle this type of input");
+
     if (!input.length)
       throw new Error("Input array cannot be empty");
 
@@ -144,8 +147,15 @@ export class NeuralNetwork implements INetwork {
     }
 
     const parsedInput = Converter.Input(input);
+
     if (JSON.stringify(parsedInput.keys) !== JSON.stringify(this._inputKeys))
       throw new Error('[Run] The input keys do not match the network keys this network was trained with');
+
+    if (!parsedInput.values.length)
+      throw new Error("Input array cannot be empty");
+
+    if (parsedInput.values.length !== this._sizes[0])
+      throw new Error(`The input array length (${parsedInput.values.length}) must match network's expected input size (${this._sizes[0]})`);
   }
 
   private validateTrain = (training: TrainingSimple[] | TrainingComplex[]): void => {
@@ -185,7 +195,7 @@ export class NeuralNetwork implements INetwork {
       let sum = 0;
 
       training.forEach(({ input, output }) => {
-        this.run(input);
+        this.feedForward(input);
         let err = this.backPropagate(output);
         sum = sum + err;
       });
@@ -277,7 +287,7 @@ export class NeuralNetwork implements INetwork {
       this.validateComplexRun(input as InputLayerComplex);
 
       const parsed: number[] = Converter.Input(input).values;
-      this.validateSimpleRun(parsed);
+      // this.validateSimpleRun(parsed);
 
       const outputArray: number[] = this.feedForward(parsed);
       const record: Record<string,number> = {};
