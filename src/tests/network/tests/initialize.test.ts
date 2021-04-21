@@ -1,15 +1,16 @@
 import { NetworkConfig } from "../../../@types/NetworkConfig";
 import { Matrix } from "../../../math/matrix/Matrix";
 import { NeuralNetwork } from "../../../network/Network";
+import { organized, simple, testConfig } from "../data/training.data";
 
-describe("Network Initialization (Passing)", () => {
+describe("Network Constructor", () => {
 
   test(
     "Given NO config, " + 
     "When creating new network, " +
     "Then network should use default config", () => {
-      // Arrange
 
+      // Arrange
       // Act
       const network = new NeuralNetwork();
 
@@ -59,6 +60,9 @@ describe("Network Initialization (Passing)", () => {
       // Assert
       expect(network.sizes).toStrictEqual(expected);
     })
+})
+
+describe("Network Initialization (Passing)", () => {
 
   test(
     "Given valid sizes, " + 
@@ -148,41 +152,70 @@ describe("Network Initialization (Passing)", () => {
   test(
     "Given network has been initialized, " + 
     "When re-initializing a new network, " +
-    "Then the layers' values do NOT persist", () => {
+    "Then the weights and biases are re-initialized", () => {
       // Arrange
-      const network = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2
-      });
-      const trainingData = [
-        {
-          input: [.5, .5, .5],
-          output: [1, 0]
-        },
-        {
-          input: [.75, .5, .75],
-          output: [0, 1]
-        },
-      ];
-      const runData = [.2,.2,.2];
-      network.initialize();
+      const network = new NeuralNetwork(testConfig).initialize();
       const weightSample: number = network.weights[0].data[0][0];
       const biasesSample: number = network.biases[0].data[0][0];
 
       // Act
       network.initialize();
-      network.train(trainingData);
-      network.run(runData);
   
       // Assert
       expect(network.weights[0].data[0][0]).not.toStrictEqual(weightSample);
       expect(network.biases[0].data[0][0]).not.toStrictEqual(biasesSample);
-      expect(() => network.train(trainingData)).not.toThrowError();
-      expect(() => network.run(runData)).not.toThrowError();
+    })
+
+  test(
+    "Given a network has been initialized and re-initialized, " + 
+    "When training and running, " +
+    "Then network should succeed", () => {
+      // Arrange
+      // Act
+      const network = new NeuralNetwork(testConfig)
+        .initialize()
+        .initialize();
+  
+      // Assert
+      expect(() => network.train(simple)).not.toThrowError();
+      expect(() => network.run(simple[0].input)).not.toThrowError();
+    })
+
+  test(
+    "Given a network has been initialized and trained (object), " + 
+    "When the network is re-initialized, " +
+    "Then the input/output keys should be initialized", () => {
+      // Arrange
+      const network = new NeuralNetwork(testConfig).initialize()
+      network.train(organized);
+      const inputKeys = [...network.inputKeys];
+      const outputKeys = [...network.outputKeys];
+
+      // Act
+      network.initialize();
+  
+      // Assert
+      expect(network.inputKeys).not.toStrictEqual(inputKeys);
+      expect(network.outputKeys).not.toStrictEqual(outputKeys);
+      expect(network.inputKeys.length).toEqual(0);
+      expect(network.outputKeys.length).toEqual(0);
     })
 })
 
 describe("Network Initialization (Failing)", () => {
+
+  test(
+    "Given NO config, " + 
+    "When initializing a new network, " +
+    "Then an error is thrown", () => {
+
+      // Arrange
+      const network = new NeuralNetwork();
+
+      // Act  
+      // Assert
+      expect(() => network.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
+    })
 
   test(
     "Given invalid inputSize, " + 
@@ -190,11 +223,13 @@ describe("Network Initialization (Failing)", () => {
     "Then an error is thrown", () => {
 
       // Arrange
-      const network = new NeuralNetwork({ inputSize: 3 });
+      const network1 = new NeuralNetwork({ inputSize: 3 });
+      const network2 = new NeuralNetwork({ inputSize: 3, outputSize: 0 });
 
       // Act  
       // Assert
-      expect(() => network.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
+      expect(() => network1.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
+      expect(() => network2.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
     })
 
   test(
@@ -203,11 +238,13 @@ describe("Network Initialization (Failing)", () => {
     "Then an error is thrown", () => {
 
       // Arrange
-      const network = new NeuralNetwork({ outputSize: 3 });
+      const network1 = new NeuralNetwork({ outputSize: 3 });
+      const network2 = new NeuralNetwork({ inputSize: 0, outputSize: 3 });
 
       // Act  
       // Assert
-      expect(() => network.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
+      expect(() => network1.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
+      expect(() => network2.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
     })
 
   test(
@@ -226,13 +263,11 @@ describe("Network Initialization (Failing)", () => {
         outputSize: 2,
         layerSizes: [0, 1]
       });
-      const network3 = new NeuralNetwork();
 
       // Act  
       // Assert
       expect(() => network1.initialize()).toThrowError("[Initialization] Hidden layers are required but couldn't be found in config");
       expect(() => network2.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
-      expect(() => network3.initialize()).toThrowError("[Initialization] Neural network cannot have empty activation layers");
     })
 
   test(
@@ -241,27 +276,16 @@ describe("Network Initialization (Failing)", () => {
     "Then an error is thrown", () => {
 
       // Arrange
-      const network1 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        maxIterations: undefined
-      });
-      const network2 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        maxIterations: 0
-      });
-      const network3 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        maxIterations: -12093
-      });
+      const networks: NeuralNetwork[] = [
+        new NeuralNetwork({ ...testConfig, maxIterations: undefined }),
+        new NeuralNetwork({ ...testConfig, maxIterations: 0 }),
+        new NeuralNetwork({ ...testConfig, maxIterations: -12093 })
+      ];
+      const message = "[Initialization] Invalid max iterations in config";
 
       // Act  
       // Assert
-      expect(() => network1.initialize()).toThrowError("[Initialization] Invalid max iterations in config");
-      expect(() => network2.initialize()).toThrowError("[Initialization] Invalid max iterations in config");
-      expect(() => network3.initialize()).toThrowError("[Initialization] Invalid max iterations in config");
+      networks.forEach(n => expect(() => n.initialize()).toThrowError(message));
     })
 
   test(
@@ -270,33 +294,17 @@ describe("Network Initialization (Failing)", () => {
     "Then an error is thrown", () => {
 
       // Arrange
-      const network1 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        learningRate: undefined
-      });
-      const network2 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        learningRate: 0
-      });
-      const network3 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        learningRate: -0.3
-      });
-      const network4 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        learningRate: 1.01
-      });
+      const networks: NeuralNetwork[] = [
+        new NeuralNetwork({ ...testConfig, learningRate: undefined }),
+        new NeuralNetwork({ ...testConfig, learningRate: 0 }),
+        new NeuralNetwork({ ...testConfig, learningRate: -0.3 }),
+        new NeuralNetwork({ ...testConfig, learningRate: 1.01 })
+      ]
+      const message = "[Initialization] Learning rate in config must be a number between 0 and 1";
 
       // Act  
       // Assert
-      expect(() => network1.initialize()).toThrowError("[Initialization] Learning rate in config must be a number between 0 and 1");
-      expect(() => network2.initialize()).toThrowError("[Initialization] Learning rate in config must be a number between 0 and 1");
-      expect(() => network3.initialize()).toThrowError("[Initialization] Learning rate in config must be a number between 0 and 1");
-      expect(() => network4.initialize()).toThrowError("[Initialization] Learning rate in config must be a number between 0 and 1");
+      networks.forEach(n => expect(() => n.initialize()).toThrowError(message));
     })
 
   test(
@@ -305,32 +313,16 @@ describe("Network Initialization (Failing)", () => {
     "Then an error is thrown", () => {
 
       // Arrange
-      const network1 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        errorThreshold: undefined
-      });
-      const network2 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        errorThreshold: 0
-      });
-      const network3 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        errorThreshold: -0.3
-      });
-      const network4 = new NeuralNetwork({
-        inputSize: 3,
-        outputSize: 2,
-        errorThreshold: 1.01
-      });
+      const networks: NeuralNetwork[] = [
+        new NeuralNetwork({ ...testConfig, errorThreshold: undefined }),
+        new NeuralNetwork({ ...testConfig, errorThreshold: 0 }),
+        new NeuralNetwork({ ...testConfig, errorThreshold: -0.3 }),
+        new NeuralNetwork({ ...testConfig, errorThreshold: 1.01 }),
+      ]
+      const message = "[Initialization] Error threshold in config must be a number between 0 and 1";
 
       // Act  
       // Assert
-      expect(() => network1.initialize()).toThrowError("[Initialization] Error threshold in config must be a number between 0 and 1");
-      expect(() => network2.initialize()).toThrowError("[Initialization] Error threshold in config must be a number between 0 and 1");
-      expect(() => network3.initialize()).toThrowError("[Initialization] Error threshold in config must be a number between 0 and 1");
-      expect(() => network4.initialize()).toThrowError("[Initialization] Error threshold in config must be a number between 0 and 1");
+      networks.forEach(n => expect(() => n.initialize()).toThrowError(message));
     })
 })
