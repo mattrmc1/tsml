@@ -13,7 +13,10 @@ export class NeuralNetwork implements INetwork {
   //#region Variables
 
   private _inputKeys: string[] = [];
+  public get inputKeys(): string[] { return this._inputKeys; }
+
   private _outputKeys: string[] = [];
+  public get outputKeys(): string[] { return this._outputKeys; }
 
   private _config: NetworkConfig;
   public get config(): NetworkConfig { return this._config; }
@@ -152,26 +155,51 @@ export class NeuralNetwork implements INetwork {
       throw new Error('[Run] The input keys do not match the network keys this network was trained with');
 
     if (!parsedInput.values.length)
-      throw new Error("Input array cannot be empty");
+      throw new Error("[Run] Input array cannot be empty");
 
     if (parsedInput.values.length !== this._sizes[0])
-      throw new Error(`The input array length (${parsedInput.values.length}) must match network's expected input size (${this._sizes[0]})`);
+      throw new Error(`[Run] The input array length (${parsedInput.values.length}) must match network's expected input size (${this._config.inputSize})`);
   }
 
   private validateTrain = (training: TrainingSimple[] | TrainingComplex[]): void => {
+    if (
+      !this.activations
+      || !this.activations.length
+      || !this.weights
+      || !this.weights.length
+      || !this.biases
+      || !this.biases.length
+    ) {
+      throw new Error("[Training] Invalid or empty layers found. This is likely due to the neural network not being initialized");
+    }
+
     if (!training || !training.length) {
-      throw new Error("Invalid training data received");
+      throw new Error("[Training] Training data cannot be null, undefined, or empty");
     }
   }
 
   private validateSimpleTrain = ( training: TrainingSimple[] ): void => {
-    // Ensure all inputs and outputs are arrays of numbers between 0 and 1
-    // Ensure all input and output arrays are the same length respectively
-  }
 
-  private validateComplexTrain = ( training: TrainingComplex[] ): void => {
-    // Verification:
-    //   • If output size isn't specified, use training data
+    training.forEach(({ input, output }) => {
+
+      if (!input.length)
+        throw new Error("[Training] Input cannot be empty");
+
+      if (!output.length)
+        throw new Error("[Training] Output cannot be empty");
+
+      if (input.length !== this._config.inputSize)
+        throw new Error(`[Training] The input array length (${input.length}) did not match the network's expected input size (${this._config.inputSize})`);
+
+      if (output.length !== this._config.outputSize)
+        throw new Error(`[Training] The output array length (${output.length}) did not match the network's expected output size (${this._config.outputSize})`);
+
+      const p: (n: number) => boolean = n => n < 0 || n > 1;
+      if (input.some(p) || output.some(p))
+        throw new Error("[Training] Input/Output values must be between 0 and 1");
+
+      
+    })
   }
 
   //#endregion
@@ -179,6 +207,8 @@ export class NeuralNetwork implements INetwork {
   //#region Private
 
   private reset = () => {
+    this._inputKeys = [];
+    this._outputKeys = [];
     this._activations = [];
     this._weights = [];
     this._biases = [];
@@ -318,7 +348,6 @@ export class NeuralNetwork implements INetwork {
     // Handle Complex
     if (!Array.isArray(training[0].input) && typeof(training[0].input) === 'object')
     {
-      this.validateComplexTrain(training as TrainingComplex[]);
       const { inputKeys, outputKeys, simplified } = Converter.Training(training as TrainingComplex[]);
       this._inputKeys = inputKeys
       this._outputKeys = outputKeys;

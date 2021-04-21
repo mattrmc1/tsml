@@ -1,25 +1,223 @@
-describe("Network TrainAsync", () => {
+import { NetworkConfig } from "../../../@types/NetworkConfig";
+import { NeuralNetwork } from "../../../network/Network";
+import { invalid, organized, simple, testConfig, unorganized } from "../data/training.data";
 
-  // PASSING
-  // • Simple
-  // • Complex
-  // • errorThreshold
-  // • max iterations
+describe("Network Train Async (Passing)", () => {
 
-  // FAILING
-  // • Not initialized
-  // • Invalid training data
+  const network = new NeuralNetwork(testConfig);
+
+  beforeEach(() => network.initialize());
+
+  test(
+    "Given Network is initialized, " + 
+    "When Network is trained (simple), " +
+    "Then the weights and biases are updated", async () => {
+
+      // Arrange
+      const formerWeightSample: number[][] = network.weights[0].data;
+      const formerBiasSample: number[][] = network.biases[0].data;
+
+      // Act
+      await network.trainAsync(simple);
+
+      // Assert
+      expect(formerWeightSample).toBeDefined();
+      expect(formerBiasSample).toBeDefined();
+      expect(network.weights[0].data).not.toStrictEqual(formerWeightSample);
+      expect(network.biases[0].data).not.toStrictEqual(formerBiasSample);
+    })
+
+  test(
+    "Given Network is initialized, " + 
+    "When Network is trained (organized), " +
+    "Then the weights and biases are updated", async () => {
+
+      // Arrange
+      const formerWeightSample: number[][] = network.weights[0].data;
+      const formerBiasSample: number[][] = network.biases[0].data;
+
+      // Act
+      await network.trainAsync(organized);
+
+      // Assert
+      expect(formerWeightSample).toBeDefined();
+      expect(formerBiasSample).toBeDefined();
+      expect(network.weights[0].data).not.toStrictEqual(formerWeightSample);
+      expect(network.biases[0].data).not.toStrictEqual(formerBiasSample);
+    })
+
+    test(
+      "Given Network is initialized, " + 
+      "When Network is trained (unorganized), " +
+      "Then the weights and biases are updated", async () => {
   
-  test("Dummy", () => {
-    // Arrange
-    let x = 1;
-    let y = 2;
+        // Arrange
+        const formerWeightSample: number[][] = network.weights[0].data;
+        const formerBiasSample: number[][] = network.biases[0].data;
+  
+        // Act
+        await network.trainAsync(unorganized);
+  
+        // Assert
+        expect(formerWeightSample).toBeDefined();
+        expect(formerBiasSample).toBeDefined();
+        expect(network.weights[0].data).not.toStrictEqual(formerWeightSample);
+        expect(network.biases[0].data).not.toStrictEqual(formerBiasSample);
+      })
 
-    // Act
-    let sum = x + y;
+  test(
+    "Given Network is initialized, " + 
+    "When Network is trained (organized), " +
+    "Then the input and output keys are sorted and stored correctly", async () => {
 
-    // Assert
-    expect(sum).toBe(3);
+      // Arrange
+      const formerInputKeys: string[] = [ ...network.inputKeys ];
+      const formerOutputKeys: string[] = [ ...network.outputKeys ];
 
+      // Act
+      await network.trainAsync(organized);
+
+      // Assert
+      expect(formerInputKeys).toEqual([]);
+      expect(formerOutputKeys).toEqual([]);
+      expect(network.inputKeys).toEqual([ 'a', 'b', 'c', 'd' ]);
+      expect(network.outputKeys).toEqual([ 'answer1', 'answer2' ]);
+    })
+
+  test(
+    "Given Network is initialized, " + 
+    "When Network is trained (unorganized), " +
+    "Then the input and output keys are sorted and stored correctly", async () => {
+
+      // Arrange
+      const formerInputKeys: string[] = [ ...network.inputKeys ];
+      const formerOutputKeys: string[] = [ ...network.outputKeys ];
+
+      // Act
+      await network.trainAsync(unorganized);
+
+      // Assert
+      expect(formerInputKeys).toEqual([]);
+      expect(formerOutputKeys).toEqual([]);
+      expect(network.inputKeys).toEqual([ 'a', 'b', 'c', 'd' ]);
+      expect(network.outputKeys).toEqual([ 'answer1', 'answer2' ]);
+    })
+
+  test(
+    "Given Network is initialized targeting a reasonable errorThreshold, " + 
+    "When Network is trained, " +
+    "Then the training cost should reach under the errorThreshold", async () => {
+
+      // Arrange
+      const config: NetworkConfig = {
+        maxIterations: 1000000000,
+        errorThreshold: 0.05,
+        ...testConfig
+      };
+      const networkSimple = new NeuralNetwork(config).initialize();
+      const networkOrganized = new NeuralNetwork(config).initialize();
+      const networkUnorganized = new NeuralNetwork(config).initialize();
+
+      // Act
+      const simpleCost = networkSimple.train(simple);
+      const organizedCost = networkOrganized.train(organized);
+      const unorganizedCost = networkUnorganized.train(unorganized);
+
+      // Assert
+      expect(simpleCost).toBeDefined();
+      expect(organizedCost).toBeDefined();
+      expect(unorganizedCost).toBeDefined();
+
+      expect(simpleCost).toBeLessThan(config.errorThreshold);
+      expect(organizedCost).toBeLessThan(config.errorThreshold);
+      expect(unorganizedCost).toBeLessThan(config.errorThreshold);
+
+    })
+
+  test(
+    "Given Network is initialized targeting an unreasonable errorThreshold, " + 
+    "When Network is trained, " +
+    "Then the maxIterations should allow the training to stil complete", async () => {
+
+      // Arrange
+      const config: NetworkConfig = {
+        maxIterations: 100,
+        errorThreshold: 0.0000001,
+        ...testConfig
+      };
+      const networkSimple = new NeuralNetwork(config).initialize();
+      const networkOrganized = new NeuralNetwork(config).initialize();
+      const networkUnorganized = new NeuralNetwork(config).initialize();
+
+      let isTakingTooLong = false;
+      const timeoutId = setTimeout(() => {
+        isTakingTooLong = true;
+      }, 5000);
+
+      // Act
+      const simpleCost = await networkSimple.trainAsync(simple);
+      const organizedCost = await networkOrganized.trainAsync(organized);
+      const unorganizedCost = await networkUnorganized.trainAsync(unorganized);
+
+      // Assert
+      expect(isTakingTooLong).toBe(false);
+      clearTimeout(timeoutId);
+
+      expect(simpleCost).toBeDefined();
+      expect(organizedCost).toBeDefined();
+      expect(unorganizedCost).toBeDefined();
+
+      expect(simpleCost).toBeGreaterThan(config.errorThreshold);
+      expect(organizedCost).toBeGreaterThan(config.errorThreshold);
+      expect(unorganizedCost).toBeGreaterThan(config.errorThreshold);
+    })
+})
+
+describe("Network Train Async (Failing)", () => {
+
+  const network = new NeuralNetwork(testConfig);
+
+  beforeEach(() => network.initialize());
+
+  invalid.forEach(({ description, message, data }) => {
+    test(description, async () => {
+      try {
+        await network.trainAsync(data);
+      } catch (e) {
+        expect(e.message).toEqual(message);
+      }
+    })
   })
+
+  test(
+    "Given Network is NOT initialized, " + 
+    "When Network is trained, " +
+    "Then an error is thrown", async () => {
+
+      // Arrange
+      const networkSimple = new NeuralNetwork(testConfig);
+      const networkOrganized = new NeuralNetwork(testConfig);
+      const networkUnorganized = new NeuralNetwork(testConfig);
+      const message = "[Training] Invalid or empty layers found. This is likely due to the neural network not being initialized";
+
+      // Act
+      // Assert
+      try {
+        await networkSimple.train(simple);
+      } catch (e) {
+        expect(e.message).toEqual(message);
+      }
+
+      try {
+        await networkOrganized.train(simple);
+      } catch (e) {
+        expect(e.message).toEqual(message);
+      }
+
+      try {
+        await networkUnorganized.train(simple);
+      } catch (e) {
+        expect(e.message).toEqual(message);
+      }
+    })
 })
