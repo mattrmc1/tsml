@@ -55,13 +55,6 @@ interface IMatrix {
    * @returns this
    */
   randomize(): IMatrix;
-
-  /**
-   * Print Matrix to the console
-   * @param color Specifies which color to use from chalk.color
-   * (Defaults to "green")
-   */
-  print(color?: string): IMatrix;
 }
 
 export default IMatrix;

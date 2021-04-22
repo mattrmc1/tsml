@@ -1,9 +1,6 @@
-import IMatrix from "../../interfaces/IMatrix";
+import IMatrix from "./IMatrix";
 import { MatrixStatic } from "./MatrixStatic";
 import { Validate } from "./_validations";
-
-const chalk = require('chalk');
-const { table } = require('table');
 
 export class Matrix extends MatrixStatic implements IMatrix {
 
@@ -82,9 +79,4 @@ export class Matrix extends MatrixStatic implements IMatrix {
   }
 
   public randomize = (): IMatrix => this.map(() => Math.random());
-
-  public print = (color: string = "green"): IMatrix => {
-    console.log(chalk[color](table(this.data)));
-    return this;
-  }
 }

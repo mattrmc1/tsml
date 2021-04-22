@@ -3,15 +3,6 @@ import { Matrix } from "../../../math/matrix/Matrix";
 import { NeuralNetwork } from "../../../network/Network"
 import { simple, testConfig } from "../data/training.data"
 
-// PASSING
-// Load weights and biases
-// Load weights only
-// Load biases only
-
-// FAILING
-// Invalid weights dimensions
-// Invalid biases dimensions
-
 describe("Network Loading (Passing)", () => {
 
   const parse = (matrices: Matrix[]): string => JSON.stringify(matrices.map(m => m.data));

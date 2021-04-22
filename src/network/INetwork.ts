@@ -1,6 +1,6 @@
 import { InputLayerComplex, InputLayerSimple, NetworkData, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
 import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
-import { NeuralNetwork } from "../network/Network";
+import { NeuralNetwork } from "./Network";
 
 export interface INetwork {
 

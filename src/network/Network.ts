@@ -1,12 +1,10 @@
 import { Matrix } from "../math/matrix/Matrix";
 import { calculateDeltas, sigmoid } from '../math/formulas';
 import { NetworkConfig } from "../@types/NetworkConfig";
-import { INetwork } from "../interfaces/INetwork";
+import { INetwork } from "./INetwork";
 import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
 import { InputLayerComplex, InputLayerSimple, NetworkData, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
 import { Converter } from "../util/convert";
-
-const chalk = require('chalk');
 
 export class NeuralNetwork implements INetwork {
 
@@ -42,7 +40,6 @@ export class NeuralNetwork implements INetwork {
 
   //#endregion
 
-  // TODO Break out input and output sizes from config object
   constructor (config: NetworkConfig = {}) {
 
     this._config = { ...NeuralNetwork.DEFAULT_CONFIG, ...config }
@@ -52,36 +49,6 @@ export class NeuralNetwork implements INetwork {
       ...this._config.layerSizes,
       this._config.outputSize
     ];
-  }
-
-  public DEBUG = (debugData?: 'input' | 'output' | 'activations' | 'weights' | 'biases'): void => {
-    switch (debugData) {
-      
-      case 'input':
-        this._activations[0].print("white")
-        break;
-
-      case 'output':
-        this._activations[this._activations.length - 1].print("red");
-        break;
-
-      case 'activations':
-        this._activations.forEach(a => a.print("red"));
-        break;
-
-      case 'weights':
-        this._weights.forEach(m => m.print("cyan"));
-        break;
-
-      case 'biases':
-        this._biases.forEach(b => b.print("magenta"));
-        break;
-
-      default:
-        this._activations.forEach(a => a.print("red"));
-        this._weights.forEach(m => m.print("cyan"));
-        this._biases.forEach(b => b.print("magenta"));
-    }
   }
 
   //#region Validation
