@@ -24,7 +24,7 @@ export const BuildFromArray_Fail: IMatrixBuildFromArrayTestData[] = [
     errorMessage: "[BuildFromArray] Array must not be empty"
   },
   {
-    description: "Should FAIL with empty array",
+    description: "Should FAIL with bogus string",
     input: "bogus",
     errorMessage: "[BuildFromArray] Invalid array argument"
   },
