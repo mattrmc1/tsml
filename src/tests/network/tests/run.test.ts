@@ -1,4 +1,5 @@
-import { OutputLayerComplex, OutputLayerSimple } from "../../../@types/NetworkIO";
+import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../../../@types/NetworkIO";
+import { TrainingComplex } from "../../../@types/NetworkTraining";
 import { NeuralNetwork } from "../../../network/Network";
 import { organized, simple, testConfig, unorganized } from "../data/training.data";
 
@@ -23,7 +24,7 @@ describe("Network Run (Passing)", () => {
       expect(Array.isArray(actual)).toBeTruthy();
       expect(actual.length).toEqual(network.config.outputSize);
       for(let i = 0; i < actual.length; i++) {
-        expect(actual[i]).toBeCloseTo(simple[0].output[i], 1.3);
+        expect(actual[i]).toBeCloseTo(simple[0].output[i], 1); // Results >0.95 will pass
       }
     })
   
@@ -37,14 +38,16 @@ describe("Network Run (Passing)", () => {
 
       // Act
       const actual: OutputLayerComplex = network.run(organized[0].input) as OutputLayerComplex;
+      const keys = Object.keys(actual);
 
       // Assert
       expect(Array.isArray(actual)).toBeFalsy();
-      expect(Object.keys(actual)).toContain("answer1");
-      expect(Object.keys(actual)).toContain("answer2");
+      expect(keys.length).toEqual(testConfig.outputSize);
+      expect(keys).toContain("answer1");
+      expect(keys).toContain("answer2");
 
-      expect(actual.answer1).toBeCloseTo(organized[0].output.answer1, 1.3);
-      expect(actual.answer2).toBeCloseTo(organized[0].output.answer2, 1.3);
+      expect(actual.answer1).toBeCloseTo(organized[0].output.answer1, 1); // Results >0.95 will pass
+      expect(actual.answer2).toBeCloseTo(organized[0].output.answer2, 1); // Results >0.95 will pass
     })
 
   test(
@@ -57,14 +60,16 @@ describe("Network Run (Passing)", () => {
 
       // Act
       const actual: OutputLayerComplex = network.run(unorganized[0].input) as OutputLayerComplex;
+      const keys = Object.keys(actual);
 
       // Assert
       expect(Array.isArray(actual)).toBeFalsy();
-      expect(Object.keys(actual)).toContain("answer1");
-      expect(Object.keys(actual)).toContain("answer2");
+      expect(keys.length).toEqual(testConfig.outputSize);
+      expect(keys).toContain("answer1");
+      expect(keys).toContain("answer2");
 
-      expect(actual.answer1).toBeCloseTo(unorganized[0].output.answer1, 1.3);
-      expect(actual.answer2).toBeCloseTo(unorganized[0].output.answer2, 1.3);
+      expect(actual.answer1).toBeCloseTo(unorganized[0].output.answer1, 1); // Results >0.95 will pass
+      expect(actual.answer2).toBeCloseTo(unorganized[0].output.answer2, 1); // Results >0.95 will pass
     })
 })
 
@@ -76,32 +81,55 @@ describe("Network Run (Failing)", () => {
     "Then an error occurs", () => {
 
       // Arrange
-      const network1 = new NeuralNetwork(testConfig);
-      const network2 = new NeuralNetwork(testConfig);
+      const networks: NeuralNetwork[] = [
+        new NeuralNetwork(testConfig),
+        new NeuralNetwork(testConfig),
+        new NeuralNetwork(testConfig)
+      ];
+      const inputs: (InputLayerSimple | InputLayerComplex)[] = [
+        simple[0].input,
+        organized[0].input,
+        unorganized[0].input
+      ];
+      const message: string = "[Run] Invalid or empty layers found. This is likely due to the neural network not being initialized";
 
       // Act
       // Assert
-      expect(() => network1.run(simple[0].input)).toThrowError("[Run] Invalid or empty layers found. This is likely due to the neural network not being initialized");
-      expect(() => network2.run(organized[0].input)).toThrowError("[Run] Invalid or empty layers found. This is likely due to the neural network not being initialized");
+      networks.forEach((n, i) => expect(() => n.run(inputs[i])).toThrowError(message));
 
     })
 
   test(
-    "Given Network was initialized and trained (simple or complex), " + 
-    "When Network is run (simple or complex) with invalid input layer, " +
+    "Given Network was initialized and trained (simple), " + 
+    "When Network is run (simple) with invalid input layer, " +
     "Then an error occurs", () => {
 
       // Arrange
-      const network1 = new NeuralNetwork(testConfig).initialize();
-      network1.train(simple);
-
-      const network2 = new NeuralNetwork(testConfig).initialize();
-      network2.train(unorganized);
+      const network = new NeuralNetwork(testConfig).initialize();
+      const invalid: InputLayerSimple = [1, 0, 0];
+      const message: string = `The input array length (${invalid.length}) must match network's expected input size (${testConfig.inputSize})`
+      network.train(simple);
 
       // Act
       // Assert
-      expect(() => network1.run([1, 0, 0])).toThrowError("The input array length (3) must match network's expected input size (4)");
-      expect(() => network2.run({w: 0, x: 1, y: 0, z: 0})).toThrowError('[Run] The input keys do not match the network keys this network was trained with');
+      expect(() => network.run(invalid)).toThrowError(message);
+
+    })
+
+  test(
+    "Given Network was initialized and trained (complex), " + 
+    "When Network is run (complex) with invalid input layer, " +
+    "Then an error occurs", () => {
+
+      // Arrange
+      const network = new NeuralNetwork(testConfig).initialize();
+      const invalid: InputLayerComplex = { w: 0, x: 1, y: 0, z: 0 };
+      const message: string = "[Run] The input keys do not match the network keys this network was trained with";
+      network.train(unorganized);
+
+      // Act
+      // Assert
+      expect(() => network.run(invalid)).toThrowError(message);
 
     })
   
@@ -116,7 +144,7 @@ describe("Network Run (Failing)", () => {
 
       // Act
       // Assert
-      expect(() => network.run({a: 0, b: 1, c: 0, d: 0})).toThrowError("[Run] This network wasn't trained to handle this type of input");
+      expect(() => network.run(organized[0].input)).toThrowError("[Run] This network wasn't trained to handle this type of input");
     })
 
   test(
@@ -125,11 +153,18 @@ describe("Network Run (Failing)", () => {
     "Then an error occurs", () => {
 
       // Arrange
-      const network = new NeuralNetwork(testConfig).initialize();
-      network.train(organized);
+      const networks = [
+        new NeuralNetwork(testConfig).initialize(),
+        new NeuralNetwork(testConfig).initialize()
+      ];
+      const training: TrainingComplex[][] = [ organized, unorganized ];
 
-      // Act
-      // Assert
-      expect(() => network.run([1, 0, 0, 0])).toThrowError("[Run] This network wasn't trained to handle this type of input");
+      networks.forEach((n, i) => {
+        n.train(training[i]);
+
+        // Act
+        // Assert
+        expect(() => n.run(simple[0].input)).toThrowError("[Run] This network wasn't trained to handle this type of input")
+      });
     })
 })
