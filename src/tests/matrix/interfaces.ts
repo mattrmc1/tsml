@@ -16,6 +16,14 @@ export interface IMatrixMathInstanceTestData {
   errorMessage?: string;
 }
 
+export interface IMatrixBuildFromDataTestData {
+  description: string;
+  data: number[][];
+  rows?: number;
+  cols?: number;
+  errorMessage?: string;
+}
+
 export interface IMatrixBuildFromArrayTestData {
   description: string;
   input: any;

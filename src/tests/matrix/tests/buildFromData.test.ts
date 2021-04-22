@@ -1,19 +1,22 @@
+import { Matrix } from "../../../math/matrix/Matrix";
+import { BuildFromData_Fail, BuildFromData_Pass } from "../data/buildFromData.data";
+
 describe("Matrix Static BuildFromData", () => {
 
-  test("TODO", () => expect(true).toBeFalsy());
+  // Passing
+  BuildFromData_Pass.forEach(({ description, data, rows, cols }) => {
+    test(description, () => {
+      const matrix = Matrix.BuildFromData(data);
+      expect(matrix.data).toStrictEqual(data);
+      expect(matrix.rows).toEqual(rows);
+      expect(matrix.cols).toEqual(cols);
+    })
+  });
 
-  // Passing Tests
-  // BuildFromArray_Pass.forEach( data => {
-  //   test(data.description, () => {
-  //     const matrix = Matrix.BuildFromArray(data.input);
-  //     expect(matrix.data).toStrictEqual(data.expected);
-  //   })
-  // });
-
-  // Failing Tests
-  // BuildFromArray_Fail.forEach( data => {
-  //   test(data.description, () => {
-  //     expect(() => Matrix.BuildFromArray(data.input)).toThrow(data.errorMessage)
-  //   })
-  // })
+  // Failing
+  BuildFromData_Fail.forEach(({ description, data, errorMessage }) => {
+    test(description, () => {
+      expect(() => Matrix.BuildFromData(data)).toThrowError(errorMessage);
+    })
+  })
 })

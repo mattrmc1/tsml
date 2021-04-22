@@ -17,7 +17,18 @@ const isIdenticalDimensions = (m: Matrix, n: Matrix): boolean => m.rows === n.ro
 export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
 
   BuildFromData: (data: number[][]) => {
-    // TODO
+
+    if (!data.length)
+      throw new Error('[BuildFromData] Data was undefined, null, or empty');
+
+    if (!data[0].length)
+      throw new Error('[BuildFromData] Invalid data record');
+
+    const l: number = data[0].length;
+    data.forEach(d => {
+      if (d.length !== l)
+        throw new Error('[BuildFromData] Nested arrays must have equal length because they represent the columns of the matrix');
+    })
   },
 
   BuildFromArray: (arr: number[]) => {
