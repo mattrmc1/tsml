@@ -1,4 +1,4 @@
-import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
+import { InputLayerComplex, InputLayerSimple, NetworkData, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
 import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
 import { NeuralNetwork } from "../network/Network";
 
@@ -16,20 +16,13 @@ export interface INetwork {
    */
   initialize(): NeuralNetwork;
 
-  /**
-   * Runs the feed forward algorithm with the current weights and biases
-   * @param input Input activation layer
-   * @returns A guess at Output activation layer
-   */
-  run(input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex;
+  save(): NetworkData;
 
   /**
-   * Async (Promise): Feed forward with current weights and biases
-   * @param input Input activation layer
-   * @returns A guess at Output activation layer
+   * Load weights and biases directly into NeuralNetwork
+   * @param data Weights and/or Biases to be loaded into the network
    */
-  runAsync(input: InputLayerSimple | InputLayerComplex): Promise<OutputLayerSimple | OutputLayerComplex>;
-
+  load(data: NetworkData): NeuralNetwork;
 
   /**
    * Trains the neural network with given test data
@@ -44,4 +37,18 @@ export interface INetwork {
    * @returns Error Cost after all tests
    */
   trainAsync(training: TrainingSimple[] | TrainingComplex[]): Promise<number | void>
+
+  /**
+   * Runs the feed forward algorithm with the current weights and biases
+   * @param input Input activation layer
+   * @returns A guess at Output activation layer
+   */
+   run(input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex;
+
+   /**
+    * Async (Promise): Feed forward with current weights and biases
+    * @param input Input activation layer
+    * @returns A guess at Output activation layer
+    */
+   runAsync(input: InputLayerSimple | InputLayerComplex): Promise<OutputLayerSimple | OutputLayerComplex>;
 }

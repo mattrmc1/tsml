@@ -3,7 +3,7 @@ import { calculateDeltas, sigmoid } from '../math/formulas';
 import { NetworkConfig } from "../@types/NetworkConfig";
 import { INetwork } from "../interfaces/INetwork";
 import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
-import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
+import { InputLayerComplex, InputLayerSimple, NetworkData, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
 import { Converter } from "../util/convert";
 
 const chalk = require('chalk');
@@ -302,6 +302,42 @@ export class NeuralNetwork implements INetwork {
     return this;
   }
 
+  save = (): NetworkData => {
+    return {
+      weights: this._weights.map(m => m.data),
+      biases: this._biases.map(m => m.data)
+    };
+  }
+
+  load(data: NetworkData): NeuralNetwork {
+    throw new Error("Method not implemented.");
+  }
+
+  public train = (training: TrainingSimple[] | TrainingComplex[]): number | void => {
+
+    this.validateTrain(training);
+
+    // Handle Simple
+    if (Array.isArray(training[0].input)) return this.trainSimple(training as TrainingSimple[]);
+
+    // Handle Complex
+    if (!Array.isArray(training[0].input) && typeof(training[0].input) === 'object')
+    {
+      const { inputKeys, outputKeys, simplified } = Converter.Training(training as TrainingComplex[]);
+      this._inputKeys = inputKeys
+      this._outputKeys = outputKeys;
+      return this.trainSimple(simplified);
+    }
+  }
+
+  public trainAsync = (training: TrainingSimple[] | TrainingComplex[]): Promise<number | void> => new Promise((resolve, reject) => {
+    try {
+      resolve(this.train(training));
+    } catch (e) {
+      reject(e);
+    }
+  })
+
   public run = (input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex => {
 
     // (Handle simple)
@@ -333,31 +369,6 @@ export class NeuralNetwork implements INetwork {
   public runAsync = async (input: InputLayerSimple | InputLayerComplex): Promise<OutputLayerSimple | OutputLayerComplex> => new Promise((resolve, reject) => {
     try {
       resolve(this.run(input));
-    } catch (e) {
-      reject(e);
-    }
-  })
-
-  public train = (training: TrainingSimple[] | TrainingComplex[]): number | void => {
-
-    this.validateTrain(training);
-
-    // Handle Simple
-    if (Array.isArray(training[0].input)) return this.trainSimple(training as TrainingSimple[]);
-
-    // Handle Complex
-    if (!Array.isArray(training[0].input) && typeof(training[0].input) === 'object')
-    {
-      const { inputKeys, outputKeys, simplified } = Converter.Training(training as TrainingComplex[]);
-      this._inputKeys = inputKeys
-      this._outputKeys = outputKeys;
-      return this.trainSimple(simplified);
-    }
-  }
-
-  public trainAsync = (training: TrainingSimple[] | TrainingComplex[]): Promise<number | void> => new Promise((resolve, reject) => {
-    try {
-      resolve(this.train(training));
     } catch (e) {
       reject(e);
     }

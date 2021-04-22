@@ -1,24 +1,24 @@
-describe("Network Load", () => {
+// TODO - Tests for Network.Load
 
-  // PASSING
-  // Load weights and biases
-  // Load weights only
-  // Load biases only
+import { NetworkData } from "../../../@types/NetworkIO";
+import { NeuralNetwork } from "../../../network/Network"
+import { testConfig } from "../data/training.data"
 
-  // FAILING
-  // Invalid weights dimensions
-  // Invalid biases dimensions
+// PASSING
+// Load weights and biases
+// Load weights only
+// Load biases only
 
-  test("Dummy", () => {
-    // Arrange
-    let x = 1;
-    let y = 2;
+// FAILING
+// Invalid weights dimensions
+// Invalid biases dimensions
 
-    // Act
-    let sum = x + y;
+describe("Network Loading", () => {
 
-    // Assert
-    expect(sum).toBe(3);
+  test("Should throw error until implemented", () => {
+    const network = new NeuralNetwork(testConfig).initialize();
+    const data: NetworkData = {};
+    expect(() => network.load(data)).toThrowError("Method not implemented.");
+  });
 
-  })
 })
