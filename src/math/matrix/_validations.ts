@@ -1,6 +1,7 @@
 import { Matrix } from "./Matrix";
 
 enum MatrixStaticValidation {
+  BuildFromData = 'BuildFromData',
   BuildFromArray = 'BuildFromArray',
   FlattenToArray = 'FlattenToArray',
   DotProduct = 'DotProduct',
@@ -14,6 +15,10 @@ enum MatrixStaticValidation {
 const isIdenticalDimensions = (m: Matrix, n: Matrix): boolean => m.rows === n.rows && m.cols === n.cols;
 
 export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
+
+  BuildFromData: (data: number[][]) => {
+    // TODO
+  },
 
   BuildFromArray: (arr: number[]) => {
     if (!Array.isArray(arr)) {

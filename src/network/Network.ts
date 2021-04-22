@@ -108,6 +108,25 @@ export class NeuralNetwork implements INetwork {
       throw new Error("[Initialization] Error threshold in config must be a number between 0 and 1");
   }
 
+  private validateLoad = (weights: Matrix[], biases: Matrix[]): void => {
+
+    for(let i = 1; i < this._sizes.length; i++) {
+
+      const rows = this._sizes[i];
+      const cols = this._sizes[i - 1];
+
+      const weight = weights[i - 1];
+      const bias = biases[i - 1];
+
+      if (weight.rows !== rows || weight.cols !== cols)
+        throw new Error('nah dude');
+
+      if (bias.rows !== rows || bias.cols !== 1)
+        throw new Error('nah son');
+    }
+
+  }
+
   private validateRun = (): void => {
     if (
       !this.activations
@@ -121,7 +140,6 @@ export class NeuralNetwork implements INetwork {
     }
   }
     
-
   private validateSimpleRun = (input: InputLayerSimple): void => {
 
     this.validateRun();
@@ -302,15 +320,28 @@ export class NeuralNetwork implements INetwork {
     return this;
   }
 
-  save = (): NetworkData => {
-    return {
-      weights: this._weights.map(m => m.data),
-      biases: this._biases.map(m => m.data)
-    };
-  }
+  save = (): NetworkData => ({
+    weights: this._weights.map(m => m.data),
+    biases: this._biases.map(m => m.data)
+  });
+  
 
-  load(data: NetworkData): NeuralNetwork {
-    throw new Error("Method not implemented.");
+  load = (data: NetworkData): NeuralNetwork => {
+
+    const weights: Matrix[] = data.weights
+      ? data.weights.map(w => Matrix.BuildFromData(w))
+      : [ ...this._weights ];
+
+    const biases: Matrix[] = data.biases
+      ? data.biases.map(b => Matrix.BuildFromData(b))
+      : [ ...this._biases ];
+
+    this.validateLoad(weights, biases);
+
+    this._weights = weights;
+    this._biases = biases;
+
+    return this;
   }
 
   public train = (training: TrainingSimple[] | TrainingComplex[]): number | void => {

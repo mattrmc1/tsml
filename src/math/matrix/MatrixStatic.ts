@@ -4,6 +4,20 @@ import { Validate } from "./_validations";
 // Abstract class to hold the static methods (just for sanity sake)
 
 export abstract class MatrixStatic {
+
+  static BuildFromData = (data: number[][]): Matrix => {
+
+    Validate.BuildFromData(data);
+
+    const rows = data.length;
+    const cols = data[0].length; // Validate these are all the same length
+
+    const m = new Matrix(rows, cols);
+    m.data = data;
+    
+    return m;
+  }
+
     /**
    * Builds a Matrix from an Array
    * 
