@@ -47,9 +47,14 @@ export class DeltaHandler {
       )
   }
 
+  /**
+   * Takes in a target layer, back propagates to the input layer, and calculates the deltas for the weights and biases of the target layer
+   * @param l Target Layer Index
+   * @returns Deltas corresponding to changes needed to be made to weights and biases matrices
+   */
   public calculateDelta = (l: number): { deltaWeight: Matrix, deltaBias: Matrix } => {
 
-    // Get previous activation layer
+    // Get previous activation layer | a(L-1)
     const prevA = l > 0 ? this.a[l-1] : this.input;
 
     // z(L) = w(L) * a(L-1) + b(L)
