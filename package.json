@@ -10,7 +10,8 @@
     "test": "jest",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "preversion": "npm run test"
   },
   "repository": {
     "type": "git",
