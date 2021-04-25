@@ -1,5 +1,6 @@
 import { DeltaHandler } from "../DeltaHandler";
 import { Matrix } from "../matrix/Matrix";
+import { cost } from "./cost-functions";
 
 export const calculateDeltas = (
   activations: Matrix[],
@@ -8,7 +9,8 @@ export const calculateDeltas = (
   expected: Matrix
 ): {
   deltaWeights: Matrix[],
-  deltaBiases: Matrix[]
+  deltaBiases: Matrix[],
+  costError: Matrix
  } => {
 
   const inputActivation: Matrix[] = [...activations];
@@ -36,5 +38,7 @@ export const calculateDeltas = (
   deltaWeights.reverse();
   deltaBiases.reverse();
 
-  return { deltaWeights, deltaBiases }
+  const costError = cost(activations[activations.length - 1], expected);
+
+  return { deltaWeights, deltaBiases, costError }
 }
