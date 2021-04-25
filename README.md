@@ -1,5 +1,5 @@
-# tsml
-### TypeScript Machine Learning
+# Goddard
+### TypeScript Neural Network
 A general Machine Learning library written in TypeScript
 
 ```ts
