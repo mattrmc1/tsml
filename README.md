@@ -3,7 +3,7 @@
 A general Machine Learning library written in TypeScript
 
 ```ts
-import { NeuralNetwork } from 'tsml';
+import { NeuralNetwork } from 'goddard';
 
 const config: NetworkConfig = { inputSize: 2, outputSize: 1 };
 const network: NeuralNetwork = new NeuralNetwork(config).initialize();
@@ -22,16 +22,16 @@ Install using npm or yarn
 
 
 ```sh
-$ npm i tsml
+$ npm i goddard
 ```
 ```sh
-$ yarn add tsml
+$ yarn add goddard
 ```
 
 ## Quick Start
 #### 1. Create and initialize the Neural Network
 ```ts
-import { NeuralNetwork } from 'tsml';
+import { NeuralNetwork } from 'goddard';
 
 const network = new NeuralNetwork({
   inputSize: 3,
@@ -70,7 +70,7 @@ It is often desireable to use objects instead of arrays to make the neural netwo
 ```ts
 // Step 1 (Create and initialize)
 // This all stays the same
-import { NeuralNetwork } from 'tsml';
+import { NeuralNetwork } from 'goddard';
 
 const network = new NeuralNetwork({
   inputSize: 3,
