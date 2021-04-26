@@ -1,5 +1,4 @@
-import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../../../@types/NetworkIO";
-import { TrainingComplex } from "../../../@types/NetworkTraining";
+import { TrainingExample } from "../../../@types/NetworkTraining";
 import { NeuralNetwork } from "../../../network/Network";
 import { organized, simple, testConfig, unorganized } from "../data/training.data";
 
@@ -18,7 +17,7 @@ describe("Network Run Async (Passing)", () => {
       network.train(simple);
 
       // Act
-      const actual: OutputLayerSimple = await network.runAsync(simple[0].input) as OutputLayerSimple;
+      const actual: number[] = await network.runAsync(simple[0].input);
 
       // Assert
       expect(Array.isArray(actual)).toBeTruthy();
@@ -37,7 +36,8 @@ describe("Network Run Async (Passing)", () => {
       network.train(organized);
 
       // Act
-      const actual: OutputLayerComplex = await network.runAsync(organized[0].input) as OutputLayerComplex;
+      const actual: Record<string, number> = await network.runAsync(organized[0].input);
+      const expected: Record<string, number> = organized[0].output as Record<string, number>;
       const keys = Object.keys(actual);
 
       // Assert
@@ -46,8 +46,8 @@ describe("Network Run Async (Passing)", () => {
       expect(keys).toContain("answer1");
       expect(keys).toContain("answer2");
 
-      expect(actual.answer1).toBeCloseTo(organized[0].output.answer1, 1); // Results >0.95 will pass
-      expect(actual.answer2).toBeCloseTo(organized[0].output.answer2, 1); // Results >0.95 will pass
+      expect(actual.answer1).toBeCloseTo(expected.answer1, 1); // Results >0.95 will pass
+      expect(actual.answer2).toBeCloseTo(expected.answer2, 1); // Results >0.95 will pass
     })
 
   test(
@@ -59,7 +59,8 @@ describe("Network Run Async (Passing)", () => {
       network.train(unorganized);
 
       // Act
-      const actual: OutputLayerComplex = await network.runAsync(unorganized[0].input) as OutputLayerComplex;
+      const actual: Record<string, number> = await network.runAsync(unorganized[0].input) as Record<string, number>;
+      const expected: Record<string, number> = unorganized[0].output as Record<string, number>;
       const keys = Object.keys(actual);
 
       // Assert
@@ -68,8 +69,8 @@ describe("Network Run Async (Passing)", () => {
       expect(keys).toContain("answer1");
       expect(keys).toContain("answer2");
 
-      expect(actual.answer1).toBeCloseTo(unorganized[0].output.answer1, 1); // Results >0.95 will pass
-      expect(actual.answer2).toBeCloseTo(unorganized[0].output.answer2, 1); // Results >0.95 will pass
+      expect(actual.answer1).toBeCloseTo(expected.answer1, 1); // Results >0.95 will pass
+      expect(actual.answer2).toBeCloseTo(expected.answer2, 1); // Results >0.95 will pass
     })
 })
 
@@ -86,7 +87,7 @@ describe("Network Run Async (Failing)", () => {
         new NeuralNetwork(testConfig),
         new NeuralNetwork(testConfig)
       ];
-      const inputs: (InputLayerSimple | InputLayerComplex)[] = [
+      const inputs: (number[] | Record<string, number>)[] = [
         simple[0].input,
         organized[0].input,
         unorganized[0].input
@@ -112,7 +113,7 @@ describe("Network Run Async (Failing)", () => {
 
       // Arrange
       const network = new NeuralNetwork(testConfig).initialize();
-      const invalid: InputLayerSimple = [1,0,0];
+      const invalid: number[] = [1,0,0];
       const message = `The input array length (${invalid.length}) must match network's expected input size (${testConfig.inputSize})`;
       network.train(simple);
 
@@ -134,7 +135,7 @@ describe("Network Run Async (Failing)", () => {
 
       // Arrange
       const network = new NeuralNetwork(testConfig).initialize();
-      const invalid: InputLayerComplex = { w: 0, x: 1, y: 0, z: 0 };
+      const invalid: Record<string, number> = { w: 0, x: 1, y: 0, z: 0 };
       const message = "[Run] The input keys do not match the network keys this network was trained with";
       network.train(unorganized);
 
@@ -179,7 +180,7 @@ describe("Network Run Async (Failing)", () => {
         new NeuralNetwork(testConfig).initialize(),
         new NeuralNetwork(testConfig).initialize()
       ];
-      const training: TrainingComplex[][] = [ organized, unorganized ];
+      const training: TrainingExample[][] = [ organized, unorganized ];
 
       networks.forEach(async (n, i) => {
         n.train(training[i]);

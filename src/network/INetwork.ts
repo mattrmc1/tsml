@@ -1,5 +1,5 @@
-import { InputLayerComplex, InputLayerSimple, NetworkData, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
-import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
+import { NetworkData } from "../@types/NetworkData";
+import { TrainingExample } from "../@types/NetworkTraining";
 import { NeuralNetwork } from "./Network";
 
 export interface INetwork {
@@ -29,26 +29,28 @@ export interface INetwork {
    * @param data Test data to train the system
    * @returns Error Cost after all tests
    */
-  train(training: TrainingSimple[] | TrainingComplex[]): number | void
+  train(training: TrainingExample[]): number | void
 
   /**
    * Async (Promise): Trains the neural network with given test data
    * @param data Test data to train the system
    * @returns Error Cost after all tests
    */
-  trainAsync(training: TrainingSimple[] | TrainingComplex[]): Promise<number | void>
+  trainAsync(training: TrainingExample[]): Promise<number | void>
 
   /**
    * Runs the feed forward algorithm with the current weights and biases
    * @param input Input activation layer
    * @returns A guess at Output activation layer
    */
-   run(input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex;
+   run(input: number[]): number[];
+   run(input: Record<string, number>): Record<string, number>;
 
    /**
     * Async (Promise): Feed forward with current weights and biases
     * @param input Input activation layer
     * @returns A guess at Output activation layer
     */
-   runAsync(input: InputLayerSimple | InputLayerComplex): Promise<OutputLayerSimple | OutputLayerComplex>;
+   runAsync(input: number[]): Promise<number[]>;
+   runAsync(input: Record<string, number>): Promise<Record<string, number>>;
 }

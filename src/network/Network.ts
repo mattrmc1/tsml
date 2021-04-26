@@ -2,9 +2,9 @@ import { Matrix } from "../math/matrix/Matrix";
 import { calculateDeltas, sigmoid } from '../math/formulas';
 import { NetworkConfig } from "../@types/NetworkConfig";
 import { INetwork } from "./INetwork";
-import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
-import { InputLayerComplex, InputLayerSimple, NetworkData, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
+import { TrainingExample } from "../@types/NetworkTraining";
 import { Converter } from "../util/convert";
+import { NetworkData } from "../@types/NetworkData";
 
 export class NeuralNetwork implements INetwork {
 
@@ -107,7 +107,7 @@ export class NeuralNetwork implements INetwork {
     }
   }
     
-  private validateSimpleRun = (input: InputLayerSimple): void => {
+  private validateSimpleRun = (input: number[]): void => {
 
     this.validateRun();
 
@@ -121,7 +121,7 @@ export class NeuralNetwork implements INetwork {
       throw new Error(`The input array length (${input.length}) must match network's expected input size (${this._sizes[0]})`);
   }
 
-  private validateComplexRun = (input: InputLayerComplex): void => {
+  private validateComplexRun = (input: Record<string, number>): void => {
 
     this.validateRun();
 
@@ -146,7 +146,9 @@ export class NeuralNetwork implements INetwork {
       throw new Error(`[Run] The input array length (${parsedInput.values.length}) must match network's expected input size (${this._config.inputSize})`);
   }
 
-  private validateTrain = (training: TrainingSimple[] | TrainingComplex[]): void => {
+  private validateTrain = (training: TrainingExample[]): void => {
+
+    // Validate Initializations
     if (
       !this.activations
       || !this.activations.length
@@ -158,14 +160,18 @@ export class NeuralNetwork implements INetwork {
       throw new Error("[Training] Invalid or empty layers found. This is likely due to the neural network not being initialized");
     }
 
+    // Validate training data exists
     if (!training || !training.length) {
       throw new Error("[Training] Training data cannot be null, undefined, or empty");
     }
   }
 
-  private validateSimpleTrain = ( training: TrainingSimple[] ): void => {
+  private validateSimpleTrain = ( training: TrainingExample[] ): { input: number[], output: number[] }[] => {
 
     training.forEach(({ input, output }) => {
+
+      if (!Array.isArray(input) || !Array.isArray(output))
+        throw new Error("[Training] Input and Output types must match");
 
       if (!input.length)
         throw new Error("[Training] Input cannot be empty");
@@ -179,12 +185,23 @@ export class NeuralNetwork implements INetwork {
       if (output.length !== this._config.outputSize)
         throw new Error(`[Training] The output array length (${output.length}) did not match the network's expected output size (${this._config.outputSize})`);
 
-      const p: (n: number) => boolean = n => n < 0 || n > 1;
+      const p: (n: number) => boolean = n => typeof(n) !== 'number' || n < 0 || n > 1;
       if (input.some(p) || output.some(p))
         throw new Error("[Training] Input/Output values must be between 0 and 1");
 
-      
     })
+
+    return training as { input: number[], output: number[] }[]
+  }
+
+  private validateComplexTrain = ( training: TrainingExample[] ): { input: Record<string, number>, output: Record<string, number> }[] => {
+    
+    training.forEach(({ input, output }) => {
+      if (Array.isArray(input) || Array.isArray(output))
+        throw new Error("[Training] Input and Output types must match");
+    })
+
+    return training as { input: Record<string, number>, output: Record<string, number> }[];
   }
 
   //#endregion
@@ -199,9 +216,7 @@ export class NeuralNetwork implements INetwork {
     this._biases = [];
   }
 
-  private trainSimple = (training: TrainingSimple[]): number | void => {
-
-    this.validateSimpleTrain(training);
+  private trainSimple = (training: { input: number[], output: number[] }[]): number | void => {
 
     let totalCost: number = 0;
     let iteration: number = 0;
@@ -311,24 +326,28 @@ export class NeuralNetwork implements INetwork {
     return this;
   }
 
-  public train = (training: TrainingSimple[] | TrainingComplex[]): number | void => {
+  public train = (training: TrainingExample[]): number | void => {
 
     this.validateTrain(training);
 
-    // Handle Simple
-    if (Array.isArray(training[0].input)) return this.trainSimple(training as TrainingSimple[]);
-
-    // Handle Complex
-    if (!Array.isArray(training[0].input) && typeof(training[0].input) === 'object')
+    // Handle number[] i/o
+    if (Array.isArray(training[0].input))
     {
-      const { inputKeys, outputKeys, simplified } = Converter.Training(training as TrainingComplex[]);
+      return this.trainSimple(this.validateSimpleTrain(training));
+    }
+
+    // Handle Record<string, number> i/o
+    if (typeof(training[0].input) === 'object')
+    {
+      const { inputKeys, outputKeys, simplified } = Converter.Training(this.validateComplexTrain(training));
       this._inputKeys = inputKeys
       this._outputKeys = outputKeys;
-      return this.trainSimple(simplified);
+
+      return this.trainSimple(this.validateSimpleTrain(simplified));
     }
   }
 
-  public trainAsync = (training: TrainingSimple[] | TrainingComplex[]): Promise<number | void> => new Promise((resolve, reject) => {
+  public trainAsync = (training: TrainingExample[]): Promise<number | void> => new Promise((resolve, reject) => {
     try {
       resolve(this.train(training));
     } catch (e) {
@@ -336,35 +355,33 @@ export class NeuralNetwork implements INetwork {
     }
   })
 
-  public run = (input: InputLayerSimple | InputLayerComplex): OutputLayerSimple | OutputLayerComplex => {
+  public run = (input: number[] | Record<string, number>): any => {
 
-    // (Handle simple)
+    // Handle number[] i/o
     if (Array.isArray(input))
     {
       this.validateSimpleRun(input);
       return this.feedForward(input);
     }
 
-    // (Handle complex)
+    // Handle Record<string, number> i/o
     if (typeof(input) === 'object')
     {
-      this.validateComplexRun(input as InputLayerComplex);
+      this.validateComplexRun(input as Record<string, number>);
 
       const parsed: number[] = Converter.Input(input).values;
-      // this.validateSimpleRun(parsed);
 
       const outputArray: number[] = this.feedForward(parsed);
       const record: Record<string,number> = {};
-      this._outputKeys.forEach((key, index) => {
-        record[key] = outputArray[index];
-      })
+      this._outputKeys.forEach((key, index) => record[key] = outputArray[index])
+
       return record;
     }
 
     throw new Error("Invalid Input Layer");
   }
 
-  public runAsync = async (input: InputLayerSimple | InputLayerComplex): Promise<OutputLayerSimple | OutputLayerComplex> => new Promise((resolve, reject) => {
+  public runAsync = async (input: number[] | Record<string, number>): Promise<any> => new Promise((resolve, reject) => {
     try {
       resolve(this.run(input));
     } catch (e) {
