@@ -1,6 +1,3 @@
-import { InputLayerComplex, InputLayerSimple, OutputLayerComplex, OutputLayerSimple } from "../@types/NetworkIO";
-import { TrainingComplex, TrainingSimple } from "../@types/NetworkTraining";
-
 const parseLayer = (input: Record<string, number>): {
   keys: string[],
   values: number[]
@@ -19,15 +16,24 @@ const parseLayer = (input: Record<string, number>): {
   return { keys, values }
 }
 
+interface Data {
+  input: Record<string, number>,
+  output: Record<string, number>
+}
+interface Simplified {
+  input: number[],
+  output: number[]
+}
+
 export class Converter {
-  static Input = (input: InputLayerComplex): { keys: string[], values: InputLayerSimple } => parseLayer(input);
-  static Output = (output: OutputLayerComplex): { keys: string[], values: OutputLayerSimple } => parseLayer(output);
-  static Training = (data: TrainingComplex[]): { inputKeys: string[], outputKeys: string[], simplified: TrainingSimple[] } => {
+  static Input = (input: Record<string, number>): { keys: string[], values: number[] } => parseLayer(input);
+  static Output = (output: Record<string, number>): { keys: string[], values: number[] } => parseLayer(output);
+  static Training = (data: Data[]): { inputKeys: string[], outputKeys: string[], simplified: Simplified[] } => {
 
     let inputKeys: string[] = [];
     let outputKeys: string[] = [];
 
-    const simplified: TrainingSimple[] = data.map(({ input, output }) => {
+    const simplified: Simplified[] = data.map(({ input, output }) => {
       
       const parsedInput = Converter.Input(input);
       const parsedOutput = Converter.Output(output);

@@ -1,5 +1,5 @@
 import { NetworkConfig } from "../../../@types/NetworkConfig";
-import { TrainingComplex, TrainingSimple } from "../../../@types/NetworkTraining";
+import { TrainingExample } from "../../../@types/NetworkTraining";
 import { NeuralNetwork } from "../../../network/Network";
 import { invalid, organized, simple, testConfig, unorganized } from "../data/training.data";
 
@@ -120,7 +120,7 @@ describe("Network Train Async (Passing)", () => {
         new NeuralNetwork(config).initialize(),
         new NeuralNetwork(config).initialize()
       ];
-      const trainings: (TrainingSimple[] | TrainingComplex[])[] = [ simple, organized, unorganized ];
+      const trainings: TrainingExample[][] = [ simple, organized, unorganized ];
 
       // Act
       const costs: (number | void)[] = await Promise.all(networks.map((n, i) => n.trainAsync(trainings[i])));
@@ -148,7 +148,7 @@ describe("Network Train Async (Passing)", () => {
         new NeuralNetwork(config).initialize(),
         new NeuralNetwork(config).initialize()
       ];
-      const trainings: (TrainingSimple[] | TrainingComplex[])[] = [ simple, organized, unorganized ];
+      const trainings: TrainingExample[][] = [ simple, organized, unorganized ];
 
       // Act
       const costs: (number | void)[] = await Promise.all(networks.map((n, i) => n.trainAsync(trainings[i])));
@@ -188,7 +188,7 @@ describe("Network Train Async (Failing)", () => {
         new NeuralNetwork(testConfig),
         new NeuralNetwork(testConfig)
       ];
-      const trainings: (TrainingSimple[] | TrainingComplex[])[] = [ simple, organized, unorganized ];
+      const trainings: TrainingExample[][] = [ simple, organized, unorganized ];
       const message = "[Training] Invalid or empty layers found. This is likely due to the neural network not being initialized";
 
       // Act

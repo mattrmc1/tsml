@@ -1,4 +1,4 @@
-import { NetworkData } from "../../../@types/NetworkIO";
+import { NetworkData } from "../../../@types/NetworkData";
 import { Matrix } from "../../../math/matrix/Matrix";
 import { NeuralNetwork } from "../../../network/Network"
 import { simple, testConfig } from "../data/training.data"
