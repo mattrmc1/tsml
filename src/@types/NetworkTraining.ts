@@ -1,22 +1,10 @@
-import {
-  InputLayerComplex,
-  InputLayerSimple,
-  OutputLayerComplex,
-  OutputLayerSimple
-} from "./NetworkIO"
-
 /**
- * Training data in the form of arrays
+ * Training Data for the Neural Network
  */
-export type TrainingSimple = {
-  input: InputLayerSimple;
-  output: OutputLayerSimple;
-}
-
-/**
- * Training data in the form of objects
- */
-export type TrainingComplex = {
-  input: InputLayerComplex;
-  output: OutputLayerComplex;
+export type TrainingExample = {
+  input: number[];
+  output: number[];
+} | {
+  input: Record<string, number>;
+  output: Record<string, number>;
 }

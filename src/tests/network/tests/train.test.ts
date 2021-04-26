@@ -1,5 +1,5 @@
 import { NetworkConfig } from "../../../@types/NetworkConfig";
-import { TrainingComplex, TrainingSimple } from "../../../@types/NetworkTraining";
+import { TrainingExample } from "../../../@types/NetworkTraining";
 import { NeuralNetwork } from "../../../network/Network";
 import { invalid, organized, simple, testConfig, unorganized } from "../data/training.data";
 
@@ -120,7 +120,7 @@ describe("Network Train (Passing)", () => {
         new NeuralNetwork(config).initialize(),
         new NeuralNetwork(config).initialize()
       ];
-      const trainings: (TrainingSimple[] | TrainingComplex[])[] = [ simple, organized, unorganized ];
+      const trainings: TrainingExample[][] = [ simple, organized, unorganized ];
 
       // Act
       const costs: (number | void)[] = networks.map((n, i) => n.train(trainings[i]));
@@ -149,7 +149,7 @@ describe("Network Train (Passing)", () => {
         new NeuralNetwork(config).initialize(),
         new NeuralNetwork(config).initialize()
       ];
-      const trainings: (TrainingSimple[] | TrainingComplex[])[] = [ simple, organized, unorganized ];
+      const trainings: TrainingExample[][] = [ simple, organized, unorganized ];
 
       // Act
       const costs: (number | void)[] = networks.map((n, i) => n.train(trainings[i]));
@@ -185,11 +185,27 @@ describe("Network Train (Failing)", () => {
         new NeuralNetwork(testConfig),
         new NeuralNetwork(testConfig)
       ];
-      const trainings: (TrainingSimple[] | TrainingComplex[])[] = [ simple, organized, unorganized ];
+      const trainings: TrainingExample[][] = [ simple, organized, unorganized ];
       const message = "[Training] Invalid or empty layers found. This is likely due to the neural network not being initialized";
 
       // Act
       // Assert
       networks.forEach((n, i) => expect(() => n.train(trainings[i])).toThrowError(message));
     })
+
+  test(
+    "Given Training Examples have mixed types, " +
+    "When Training the network" +
+    "Then an error is thrown", () => {
+
+      // Arrange
+      const network: NeuralNetwork = new NeuralNetwork(testConfig).initialize();
+      const trainings: TrainingExample[] = [ ...simple, ...organized ];
+      const message = "[Training] Input and Output types must match";
+
+      // Act
+      // Assert
+      expect(() => network.train(trainings)).toThrowError(message);
+    }
+  )
 })

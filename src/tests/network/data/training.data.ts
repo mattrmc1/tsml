@@ -1,5 +1,5 @@
 import { NetworkConfig } from "../../../@types/NetworkConfig";
-import { TrainingComplex, TrainingSimple } from "../../../@types/NetworkTraining";
+import { TrainingExample } from "../../../@types/NetworkTraining";
 import { ITrainingFailureData } from "../interfaces";
 
 export const testConfig: NetworkConfig = {
@@ -7,7 +7,7 @@ export const testConfig: NetworkConfig = {
   outputSize: 2
 }
 
-export const simple: TrainingSimple[] = [
+export const simple: TrainingExample[] = [
   {
     input: [ 1, 0, 0, 0 ],
     output: [ 1, 1 ]
@@ -26,7 +26,7 @@ export const simple: TrainingSimple[] = [
   }
 ];
 
-export const organized: TrainingComplex[] = [
+export const organized: TrainingExample[] = [
   {
     input: {
       a: 1,
@@ -77,7 +77,7 @@ export const organized: TrainingComplex[] = [
   },
 ];
 
-export const unorganized: TrainingComplex[] = [
+export const unorganized: TrainingExample[] = [
   {
     input: {
       c: 0,
@@ -269,6 +269,26 @@ export const invalid: ITrainingFailureData[] = [
       {
         input: { a: 0.1, b: 0.1, c: 0.1, d: 0.1 },
         output: { answer1: 0.3, answer2: 7 }
+      }
+    ]
+  },
+  {
+    description: 'Error when mixing and matching input/output layers (test 1)',
+    message: '[Training] Input and Output types must match',
+    data: [
+      {
+        input: { a: 0.1, b: 0.1, c: 0.1, d: 0.1 },
+        output: [ 0.2, 0.4 ]
+      }
+    ]
+  },
+  {
+    description: 'Error when mixing and matching input/output layers (test 2)',
+    message: '[Training] Input and Output types must match',
+    data: [
+      {
+        input: [ 0.1, 0.1, 0.1, 0.1],
+        output: { answer1: 0.1, answer2: 0.1 }
       }
     ]
   }
