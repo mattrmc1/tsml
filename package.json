@@ -11,7 +11,9 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "build": "tsc -p .",
-    "preversion": "npm run test && npm run build"
+    "preversion": "npm run test && npm run build",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
