@@ -7,7 +7,7 @@ name: Integration
 on:
   pull_request:
     branches: [main, feature/actions]
-    types: [opened, sychronize]
+    types: [opened, synchronize]
 
 jobs:
   test_pull_request:
