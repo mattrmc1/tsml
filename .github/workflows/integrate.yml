@@ -6,7 +6,7 @@ name: Integration
 # Run when PR is opened or updated
 on:
   pull_request:
-    branches: [main, feature/actions]
+    branches: [main, develop]
     types: [opened, synchronize]
 
 jobs:
