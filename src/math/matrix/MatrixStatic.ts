@@ -1,12 +1,10 @@
-import { Matrix } from "./Matrix";
-import { Validate } from "./_validations";
+import { Matrix } from './Matrix';
+import { Validate } from './_validations';
 
 // Abstract class to hold the static methods (just for sanity sake)
 
 export abstract class MatrixStatic {
-
   static BuildFromData = (data: number[][]): Matrix => {
-
     Validate.BuildFromData(data);
 
     const rows = data.length;
@@ -14,17 +12,16 @@ export abstract class MatrixStatic {
 
     const m = new Matrix(rows, cols);
     m.data = data;
-    
-    return m;
-  }
 
-    /**
+    return m;
+  };
+
+  /**
    * Builds a Matrix from an Array
-   * 
-   * Columns = 1  |  Rows = Array.Length 
+   *
+   * Columns = 1  |  Rows = Array.Length
    */
   static BuildFromArray = (arr: number[]): Matrix => {
-
     Validate.BuildFromArray(arr);
 
     const m = new Matrix(arr.length, 1);
@@ -33,23 +30,22 @@ export abstract class MatrixStatic {
     }
 
     return m;
-  }
+  };
 
   /**
    * Flatten matrix to single dimensional array
-   * 
+   *
    * Starts at the top left m[0][0]
-   * 
+   *
    * Steps left -> right & top -> bottom
    */
   static FlattenToArray = (m: Matrix): number[] => {
-
     Validate.FlattenToArray(m);
 
     const arr: number[] = [];
-    m.forEach(x => arr.push(x))
+    m.forEach(x => arr.push(x));
     return arr;
-  }
+  };
 
   static BuildIdentity = (size: number): Matrix => {
     const matrix = new Matrix(size, size);
@@ -59,7 +55,7 @@ export abstract class MatrixStatic {
       }
     }
     return matrix;
-  }
+  };
 
   /**
    * Dot Product
@@ -68,11 +64,10 @@ export abstract class MatrixStatic {
    * @returns Product of the Dot Product
    */
   static DotProduct = (left: Matrix, right: Matrix): Matrix => {
-
     Validate.DotProduct(left, right);
 
     // This feels wildly inefficient...
-    const product = new Matrix(left.rows, right.cols)
+    const product = new Matrix(left.rows, right.cols);
     for (let i = 0; i < product.rows; i++) {
       for (let j = 0; j < product.cols; j++) {
         let sum = 0;
@@ -83,16 +78,15 @@ export abstract class MatrixStatic {
       }
     }
     return product;
-  }
-  
+  };
+
   /**
    * HadamardProduct: Multiplies all elements of Matrix
    * @param m Left side of the Hadamard Product
    * @param n Right side of the Hadamard Product
-   * @returns 
+   * @returns
    */
   static HadamardProduct = (left: Matrix, right: Matrix): Matrix => {
-
     Validate.HadamardProduct(left, right);
 
     const product = new Matrix(left.rows, left.cols);
@@ -102,7 +96,7 @@ export abstract class MatrixStatic {
       }
     }
     return product;
-  }
+  };
 
   /**
    * Adds Matrix[n] to Matrix[m] and returns new Matrix with sum
@@ -110,41 +104,38 @@ export abstract class MatrixStatic {
    * @param n Matrix to be added
    */
   static Add = (m: Matrix, n: Matrix): Matrix => {
-    
-    Validate.Add(m,n);
+    Validate.Add(m, n);
 
     let result = new Matrix(m.rows, m.cols);
 
     for (let i = 0; i < result.rows; i++) {
-      for(let j = 0; j < result.cols; j++) {
+      for (let j = 0; j < result.cols; j++) {
         result.data[i][j] = m.data[i][j] + n.data[i][j];
       }
     }
 
     return result;
-  }
+  };
 
   static Subtract = (m: Matrix, n: Matrix): Matrix => {
-    
-    Validate.Subtract(m,n);
+    Validate.Subtract(m, n);
 
     let result = new Matrix(m.rows, m.cols);
 
     for (let i = 0; i < m.rows; i++) {
-      for(let j = 0; j < m.cols; j++) {
+      for (let j = 0; j < m.cols; j++) {
         result.data[i][j] = m.data[i][j] - n.data[i][j];
       }
     }
 
     return result;
-  }
+  };
 
   /**
    * Rotate matrix clockwise by 90deg
-   * @param m 
+   * @param m
    */
   static Transpose = (m: Matrix): Matrix => {
-
     Validate.Transpose(m);
 
     const result = new Matrix(m.cols, m.rows);
@@ -154,22 +145,21 @@ export abstract class MatrixStatic {
       }
     }
     return result;
-  }
+  };
 
   static Map = (m: Matrix, func: (x: number) => number): Matrix => {
-    
     // Validate?
 
     let result = new Matrix(m.rows, m.cols);
 
     for (let i = 0; i < result.rows; i++) {
-      for(let j = 0; j < result.cols; j++) {
+      for (let j = 0; j < result.cols; j++) {
         result.data[i][j] = func(m.data[i][j]);
       }
     }
 
     return result;
-  }
+  };
 
   /**
    * Reduce matrix data to the sum of all values within that matrix
@@ -179,5 +169,5 @@ export abstract class MatrixStatic {
   static Summation = (matrix: Matrix): number => {
     const data: number[][] = [...matrix.data];
     return data.reduce((a1, c1) => a1 + c1.reduce((a2, c2) => a2 + c2), 0);
-  }
+  };
 }

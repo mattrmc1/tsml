@@ -1,15 +1,14 @@
 interface IMatrix {
-
   /**
    * Number of rows
-   * 
+   *
    * [ [1,2,3], [4,5,6] ] => 3 rows
    */
   rows: number;
 
   /**
    * Number of columns
-   * 
+   *
    * [ [1,2], [3,4], [5,6] ] => 3 columns
    */
   cols: number;
@@ -34,16 +33,16 @@ interface IMatrix {
   substract(input: IMatrix | number): IMatrix;
 
   /**
-   * Iterate through every element without mutating any 
+   * Iterate through every element without mutating any
    * of the elements' values
-   * 
+   *
    * @param func Function to call for each element in iteration
    * @returns this
    */
   forEach(func: (n: number) => any): IMatrix;
 
   /**
-   * Map through every element and mutate the element's value 
+   * Map through every element and mutate the element's value
    * with the mapper function provided
    * @param func Function to apply to each element
    * @returns this

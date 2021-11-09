@@ -1,4 +1,4 @@
-import { Matrix } from "./Matrix";
+import { Matrix } from './Matrix';
 
 enum MatrixStaticValidation {
   BuildFromData = 'BuildFromData',
@@ -9,26 +9,24 @@ enum MatrixStaticValidation {
   Add = 'Add',
   Subtract = 'Subtract',
   Transpose = 'Transpose',
-  Map = 'Map'
-};
+  Map = 'Map',
+}
 
 const isIdenticalDimensions = (m: Matrix, n: Matrix): boolean => m.rows === n.rows && m.cols === n.cols;
 
 export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
-
   BuildFromData: (data: number[][]) => {
+    if (!data.length) throw new Error('[BuildFromData] Data was undefined, null, or empty');
 
-    if (!data.length)
-      throw new Error('[BuildFromData] Data was undefined, null, or empty');
-
-    if (!data[0].length)
-      throw new Error('[BuildFromData] Invalid data record');
+    if (!data[0].length) throw new Error('[BuildFromData] Invalid data record');
 
     const l: number = data[0].length;
     data.forEach(d => {
       if (d.length !== l)
-        throw new Error('[BuildFromData] Nested arrays must have equal length because they represent the columns of the matrix');
-    })
+        throw new Error(
+          '[BuildFromData] Nested arrays must have equal length because they represent the columns of the matrix'
+        );
+    });
   },
 
   BuildFromArray: (arr: number[]) => {
@@ -36,16 +34,16 @@ export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
       throw new Error('[BuildFromArray] Invalid array argument');
     }
     if (!arr.length) {
-      throw new Error('[BuildFromArray] Array must not be empty')
+      throw new Error('[BuildFromArray] Array must not be empty');
     }
     arr.forEach(n => {
       if (Array.isArray(n)) {
         throw new Error('[BuildFromArray] Array must be 1-dimensional');
       }
-      if (typeof n != "number") {
+      if (typeof n != 'number') {
         throw new Error('[BuildFromArray] Elements in array must be numbers');
       }
-    })
+    });
   },
 
   FlattenToArray: (matrix: Matrix) => {
@@ -53,7 +51,7 @@ export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
       throw new Error('[FlattenToArray] Undefined argument');
     }
     if (matrix.cols > 1) {
-      throw new Error('[FlattenToArray] Matrix cannot be flattened if it has multiple columns')
+      throw new Error('[FlattenToArray] Matrix cannot be flattened if it has multiple columns');
     }
   },
 
@@ -65,7 +63,7 @@ export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
 
   HadamardProduct: (left: Matrix, right: Matrix) => {
     if (!isIdenticalDimensions(left, right)) {
-      throw new Error("[Hadamard Product Error] Matrices but have identical dimensions");
+      throw new Error('[Hadamard Product Error] Matrices but have identical dimensions');
     }
   },
 
@@ -90,7 +88,5 @@ export const Validate: Record<MatrixStaticValidation, (...args) => void> = {
     }
   },
 
-  Map: (m: Matrix, func: (x: number) => number) => {
-
-  },
-}
+  Map: (m: Matrix, func: (x: number) => number) => {},
+};
