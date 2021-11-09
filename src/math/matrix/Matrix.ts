@@ -1,9 +1,8 @@
-import IMatrix from "./IMatrix";
-import { MatrixStatic } from "./MatrixStatic";
-import { Validate } from "./_validations";
+import IMatrix from './IMatrix';
+import { MatrixStatic } from './MatrixStatic';
+import { Validate } from './_validations';
 
 export class Matrix extends MatrixStatic implements IMatrix {
-
   public rows: number;
   public cols: number;
   public data: number[][];
@@ -17,7 +16,7 @@ export class Matrix extends MatrixStatic implements IMatrix {
     this.data = [];
     for (let i = 0; i < this.rows; i++) {
       this.data[i] = [];
-      for(let j = 0; j < this.cols; j++) {
+      for (let j = 0; j < this.cols; j++) {
         this.data[i][j] = 0;
       }
     }
@@ -26,57 +25,56 @@ export class Matrix extends MatrixStatic implements IMatrix {
   }
 
   public add = (input: number | IMatrix): IMatrix => {
-    if (typeof input === "number") {
+    if (typeof input === 'number') {
       return this.map(x => x + input);
     }
 
-    Validate.Add(this, input)
+    Validate.Add(this, input);
 
     for (let i = 0; i < this.rows; i++) {
-      for(let j = 0; j < this.cols; j++) {
+      for (let j = 0; j < this.cols; j++) {
         this.data[i][j] = this.data[i][j] + input.data[i][j];
       }
     }
 
     return this;
-  }
+  };
 
   public substract = (input: number | IMatrix): IMatrix => {
-
-    if (typeof input === "number") {
+    if (typeof input === 'number') {
       return this.map(x => x - input);
     }
 
     Validate.Subtract(this, input);
 
     for (let i = 0; i < this.rows; i++) {
-      for(let j = 0; j < this.cols; j++) {
+      for (let j = 0; j < this.cols; j++) {
         this.data[i][j] = this.data[i][j] - input.data[i][j];
       }
     }
 
     return this;
-  }
+  };
 
   public forEach = (func: (n: number) => any): IMatrix => {
     for (let i = 0; i < this.rows; i++) {
-      for(let j = 0; j < this.cols; j++) {
+      for (let j = 0; j < this.cols; j++) {
         func(this.data[i][j]);
       }
     }
 
     return this;
-  }
+  };
 
   public map = (func: (n: number) => number): IMatrix => {
     for (let i = 0; i < this.rows; i++) {
-      for(let j = 0; j < this.cols; j++) {
+      for (let j = 0; j < this.cols; j++) {
         this.data[i][j] = func(this.data[i][j]);
       }
     }
 
     return this;
-  }
+  };
 
   public randomize = (): IMatrix => this.map(() => Math.random());
 }

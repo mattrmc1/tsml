@@ -5,4 +5,4 @@ export type NetworkConfig = {
   maxIterations?: number;
   learningRate?: number;
   errorThreshold?: number;
-}
+};
