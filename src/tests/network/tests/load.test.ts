@@ -29,7 +29,8 @@ describe("Network Loading (Passing)", () => {
       const copyBiases: string = JSON.stringify(copy.biases.map(m => m.data));
 
       expect(originalWeights).toEqual(copyWeights);
-      expect(originalBiases).not.toEqual(copyBiases);
+      expect(originalBiases).toEqual(copyBiases);
+      expect(true).toBeTruthy()
     })
 
   test(
